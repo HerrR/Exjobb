@@ -13,10 +13,11 @@ public class mode_switcher : MonoBehaviour {
 
 	public GameObject layerPrefab;
 
-	private int distanceBetweenLayers = 5;
-	private int distanceFromFirstLayer = 5;
+	private float distanceBetweenLayers = 0.3f;
+	private float distanceFromFirstLayer = 0.3f;
 
 	void Start(){
+        Debug.Log("Mode switcher started!");
 		mainCanvas = GameObject.FindGameObjectWithTag ("MainCanvas");
 		imageLayers = mainCanvas.GetComponentsInChildren<Image> ();
 		generateLayersFromMainCanvas ();

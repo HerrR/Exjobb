@@ -5,7 +5,7 @@ public class camera_movement : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	
+		Debug.Log ("Camera movement initialized");
 	}
 	
 	// Update is called once per frame
