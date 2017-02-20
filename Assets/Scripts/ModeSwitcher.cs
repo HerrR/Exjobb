@@ -3,7 +3,58 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
 
-public class mode_switcher : MonoBehaviour {
+public class ModeSwitcher : MonoBehaviour {
+	public string mode;
+
+	// Assigned in inspector
+	public GameObject textUpdateOnChange;
+
+	// Auto assigned by tag
+	public GameObject mainCanvas;
+
+	// Auto assigned by tag
+	public GameObject inspectionZone;
+
+	void Start () {
+		mainCanvas = GameObject.FindGameObjectWithTag ("MainCanvas");
+		inspectionZone = GameObject.FindGameObjectWithTag ("InspectionZone");
+	}
+
+	void OnTriggerEnter(Collider other) {
+		if (other.gameObject.GetComponent<Zone> ()) {
+			switchMode (other.gameObject.GetComponent<Zone>().name);
+			if (textUpdateOnChange) {
+				textUpdateOnChange.GetComponent<Text> ().text = other.gameObject.GetComponent<Zone>().name;
+			} 
+		}
+	}
+
+	void switchMode(string _mode){
+		mode = _mode;
+
+		switch (mode){
+		case "overview":
+			foreach(GameObject layer in GameObject.FindGameObjectsWithTag("Layer")){
+				layer.GetComponent<Layer> ().copyToCanvas ();
+				Destroy (layer);
+			}
+			break;
+		case "inspection":
+			float zMin = inspectionZone.GetComponent<Zone> ().bounds.zMin;
+			float zMax = inspectionZone.GetComponent<Zone> ().bounds.zMax;
+			mainCanvas.GetComponent<CompositeImage> ().GenerateLayers (zMin, zMax);
+			mainCanvas.GetComponent<CompositeImage> ().ClearCanvas ();
+			break;
+		default:
+			break;
+		}
+
+	}
+}
+
+
+/*
+public class ModeSwticher : MonoBehaviour {
 	public GameObject textUpdateOnChange;
 	public string mode;
 
@@ -20,22 +71,15 @@ public class mode_switcher : MonoBehaviour {
 
 
 
-		/*
+		
 		imageLayers = mainCanvas.GetComponentsInChildren<Image> ();
 		generateLayersFromMainCanvas ();
-		*/ 
+
 		// layers = GameObject.FindGameObjectsWithTag ("Layer");
 	}
 
-	void OnTriggerEnter(Collider other) {
-		if (other.gameObject.GetComponent<Zone> ()) {
-			switchMode (other.gameObject.GetComponent<Zone>().name);
-			if (textUpdateOnChange) {
-				textUpdateOnChange.GetComponent<Text> ().text = other.gameObject.GetComponent<Zone>().name;
-			} 
-		}
-	}
-	/* 
+
+	
 	void generateLayersFromMainCanvas(){
 		int layersGenerated = 0;
 		foreach (Image image in imageLayers) {
@@ -63,31 +107,7 @@ public class mode_switcher : MonoBehaviour {
 			layersGenerated++;
 		}
 	}
-	*/ 
 
-	void switchMode(string _mode){
-		mode = _mode;
 
-		switch (mode){
-		case "overview":
-			/* 
-			mainCanvas.gameObject.SetActive (true);
-			foreach (GameObject layer in layers) {
-				layer.gameObject.SetActive (false);
-			}
-			*/
-			break;
-		case "inspection":
-			/* 
-			mainCanvas.gameObject.SetActive(false);
-			foreach (GameObject layer in layers) {
-				layer.gameObject.SetActive (true);
-			}
-			*/
-			break;
-		default:
-			break;
-		}
-
-	}
 }
+*/

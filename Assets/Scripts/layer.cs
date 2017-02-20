@@ -1,20 +1,28 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Layer : MonoBehaviour {
+	public GameObject mainCanvas;
 
-	// Use this for initialization
 	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
+		mainCanvas = GameObject.FindGameObjectWithTag ("MainCanvas");
 	}
 
-	public void ImageToCanvas(Canvas targetCanvas){
-		Debug.Log ("I am a layer and I want to copy my images to a canvas called " + targetCanvas.gameObject.name);
+	public void copyToCanvas(){
+		Quaternion canvasRotation = mainCanvas.transform.rotation;
+		Image layerImage = gameObject.GetComponentInChildren<Image> ();
+		Vector3 spawnPosition = layerImage.transform.position;
+		spawnPosition.z = mainCanvas.transform.position.z;
+
+		Image imageCopy = Instantiate (
+			layerImage,
+			spawnPosition,
+			canvasRotation,
+			mainCanvas.transform
+		);
+
+		imageCopy.name = "Image";
 	}
 }
