@@ -10,29 +10,32 @@ public class mode_switcher : MonoBehaviour {
 	public GameObject mainCanvas;
 	public GameObject[] layers;
 	public Image[] imageLayers;
-
 	public GameObject layerPrefab;
 
-	private float distanceBetweenLayers = 0.3f;
-	private float distanceFromFirstLayer = 0.3f;
-
 	void Start(){
-        Debug.Log("Mode switcher started!");
-		mainCanvas = GameObject.FindGameObjectWithTag ("MainCanvas");
+		// mainCanvas = GameObject.FindGameObjectWithTag ("MainCanvas");
+		// mainCanvasLayerManager = mainCanvas.GetComponent<LayerManager> ();
+		// mainCanvasLayerManager.canvasToLayers ();
+
+
+
+
+		/*
 		imageLayers = mainCanvas.GetComponentsInChildren<Image> ();
 		generateLayersFromMainCanvas ();
-		layers = GameObject.FindGameObjectsWithTag ("Layer");
+		*/ 
+		// layers = GameObject.FindGameObjectsWithTag ("Layer");
 	}
 
 	void OnTriggerEnter(Collider other) {
-		if (other.gameObject.GetComponent<zone> ()) {
-			switchMode (other.gameObject.GetComponent<zone>().name);
+		if (other.gameObject.GetComponent<Zone> ()) {
+			switchMode (other.gameObject.GetComponent<Zone>().name);
 			if (textUpdateOnChange) {
-				textUpdateOnChange.GetComponent<Text> ().text = other.gameObject.GetComponent<zone>().name;
+				textUpdateOnChange.GetComponent<Text> ().text = other.gameObject.GetComponent<Zone>().name;
 			} 
 		}
 	}
-
+	/* 
 	void generateLayersFromMainCanvas(){
 		int layersGenerated = 0;
 		foreach (Image image in imageLayers) {
@@ -47,36 +50,42 @@ public class mode_switcher : MonoBehaviour {
 				spawnPosition, 
 				spawnRotation, 
 				mainCanvas.transform.parent.gameObject.transform);
-			
-			Image layerImage = newLayer.GetComponentInChildren<Image> ();
-			layerImage.sprite = image.GetComponent<Image>().sprite;
+
+			Image newLayerImage = Instantiate (
+				image,
+				new Vector3(image.transform.position.x, image.transform.position.y, newLayer.transform.position.z),
+				image.transform.rotation,
+				newLayer.transform);
 
 			Text layerText = newLayer.GetComponentInChildren<Text> ();
 			layerText.text = "Layer " + layersGenerated;
+
 			layersGenerated++;
 		}
 	}
+	*/ 
 
 	void switchMode(string _mode){
 		mode = _mode;
 
 		switch (mode){
 		case "overview":
-			Debug.Log ("Switching to overview mode");
+			/* 
 			mainCanvas.gameObject.SetActive (true);
 			foreach (GameObject layer in layers) {
 				layer.gameObject.SetActive (false);
 			}
+			*/
 			break;
 		case "inspection":
-			Debug.Log ("Switching to inspection mode");
+			/* 
 			mainCanvas.gameObject.SetActive(false);
 			foreach (GameObject layer in layers) {
 				layer.gameObject.SetActive (true);
 			}
+			*/
 			break;
 		default:
-			Debug.LogError ("Default switch case, invalid mode");
 			break;
 		}
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class zone : MonoBehaviour {
+public class Zone : MonoBehaviour {
 	public string name;
 
 	// Use this for initialization

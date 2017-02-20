@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class layer : MonoBehaviour {
+public class Layer : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
@@ -12,5 +12,9 @@ public class layer : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
+	}
+
+	public void ImageToCanvas(Canvas targetCanvas){
+		Debug.Log ("I am a layer and I want to copy my images to a canvas called " + targetCanvas.gameObject.name);
 	}
 }
