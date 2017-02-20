@@ -13,7 +13,7 @@ public class CompositeImage : MonoBehaviour {
 		float distanceBetweenLayers = (zMax - zMin) / layers.Length;
 
 		foreach (Image layerImage in layers) {
-			Vector3 spawnPosition = gameObject.transform.parent.gameObject.transform.position;
+			Vector3 spawnPosition = gameObject.transform.position;
 			spawnPosition.z = zMax;
 			spawnPosition.z -= (layersGenerated * distanceBetweenLayers);
 			Quaternion spawnRotation = gameObject.transform.parent.gameObject.transform.rotation;
