@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class Layer : MonoBehaviour {
 	public GameObject mainCanvas;
+	public Vector3 basePosition;
 
 	void Start () {
 		mainCanvas = GameObject.FindGameObjectWithTag ("MainCanvas");
@@ -25,4 +26,6 @@ public class Layer : MonoBehaviour {
 
 		imageCopy.name = "Image";
 	}
+
+
 }

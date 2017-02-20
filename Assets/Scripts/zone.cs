@@ -32,9 +32,4 @@ public class Zone : MonoBehaviour {
 			Debug.LogError ("Box collider not found for " + name + " zone");
 		}
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 }
