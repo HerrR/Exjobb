@@ -25,10 +25,10 @@ public class mode_switcher : MonoBehaviour {
 	}
 
 	void OnTriggerEnter(Collider other) {
-		if (other.gameObject.GetComponent<zone> ()) {
-			switchMode (other.gameObject.GetComponent<zone>().name);
+		if (other.gameObject.GetComponent<Zone> ()) {
+			switchMode (other.gameObject.GetComponent<Zone>().name);
 			if (textUpdateOnChange) {
-				textUpdateOnChange.GetComponent<Text> ().text = other.gameObject.GetComponent<zone>().name;
+				textUpdateOnChange.GetComponent<Text> ().text = other.gameObject.GetComponent<Zone>().name;
 			} 
 		}
 	}

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class layer : MonoBehaviour {
+public class Layer : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
