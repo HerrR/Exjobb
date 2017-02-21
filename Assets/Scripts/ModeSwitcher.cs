@@ -27,10 +27,10 @@ public class ModeSwitcher : MonoBehaviour {
 		if (other.gameObject.GetComponent<Zone> ().type != "mode")
 			return;
 
-		switchMode (other.gameObject.GetComponent<Zone> ().name);
+		switchMode (other.gameObject.GetComponent<Zone> ().zoneName);
 
 		if (textUpdateOnChange) {
-			textUpdateOnChange.GetComponent<Text> ().text = other.gameObject.GetComponent<Zone>().name;
+			textUpdateOnChange.GetComponent<Text> ().text = other.gameObject.GetComponent<Zone>().zoneName;
 		}
 	}
 

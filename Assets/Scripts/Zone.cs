@@ -15,7 +15,7 @@ public class Zone : MonoBehaviour {
 		}
 	}
 
-	public string name;
+	public string zoneName;
 	public zBounds bounds;
 	public string type;
 

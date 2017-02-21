@@ -14,9 +14,11 @@ public class CompositeImage : MonoBehaviour {
 		float distanceBetweenLayers = (zMax - zMin) / layers.Length;
 
 		foreach (Image layerImage in layers) {
-			if (layerImage.gameObject == gameObject) {
+			// The own object holds an image mask, will therefore be included in layer images. 
+			// Skip this iteration
+			if (layerImage.gameObject == gameObject) 
 				continue;
-			}
+
 			Vector3 spawnPosition = gameObject.transform.position;
 			spawnPosition.z = zMax;
 			spawnPosition.z -= (layersGenerated * distanceBetweenLayers);
@@ -29,17 +31,17 @@ public class CompositeImage : MonoBehaviour {
 				gameObject.transform.parent.gameObject.transform
 			);
 
+			newLayer.name = "Layer "+layersGenerated;
+			newLayer.GetComponentInChildren<Text> ().text = "Layer " + layersGenerated;
+			newLayer.GetComponent<Layer> ().basePosition = spawnPosition;
+
 			Image newLayerImage = Instantiate (
 				layerImage,
 				new Vector3(layerImage.transform.position.x, layerImage.transform.position.y, newLayer.transform.position.z),
 				spawnRotation,
 				newLayer.transform
 			);
-
-			newLayer.name = "Layer "+layersGenerated;
-			newLayer.GetComponentInChildren<Text> ().text = "Layer " + layersGenerated;
-			newLayer.GetComponent<Layer> ().basePosition = spawnPosition;
-
+				
 			layersGenerated++;
 		}
 	}
