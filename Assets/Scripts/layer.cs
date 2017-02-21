@@ -29,21 +29,11 @@ public class Layer : MonoBehaviour {
 	}
 
 	void AccordionMove(){
-		float OffsetPos = Mathf.Pow ((basePosition.z - mainCamera.transform.position.z), 12);
+		float offsetPos = 1000 * Mathf.Pow (
+			(basePosition.z - mainCamera.transform.position.z) - 0.3f
+			, 7);
 		Vector3 _pos = gameObject.transform.position;
-		_pos.z = (basePosition.z + OffsetPos);
-
-		if (_pos.z > zMax) {
-			_pos.z = zMax;
-		}
-
-		if (_pos.z < zMin) {
-			_pos.z = zMin;
-		}
-
-		if (basePosition.z < mainCamera.transform.position.z) {
-			_pos.z = basePosition.z;
-		}
+		_pos.z = Mathf.Clamp ((basePosition.z + offsetPos), zMin, zMax);
 
 		gameObject.transform.position = _pos;
 	}

@@ -9,10 +9,14 @@ public class CompositeImage : MonoBehaviour {
 
 	public void GenerateLayers(float zMin, float zMax){
 		Image[] layers = gameObject.GetComponentsInChildren<Image> ();
+
 		int layersGenerated = 0;
 		float distanceBetweenLayers = (zMax - zMin) / layers.Length;
 
 		foreach (Image layerImage in layers) {
+			if (layerImage.gameObject == gameObject) {
+				continue;
+			}
 			Vector3 spawnPosition = gameObject.transform.position;
 			spawnPosition.z = zMax;
 			spawnPosition.z -= (layersGenerated * distanceBetweenLayers);
@@ -33,7 +37,7 @@ public class CompositeImage : MonoBehaviour {
 			);
 
 			newLayer.name = "Layer "+layersGenerated;
-			newLayer.GetComponentInChildren<Text> ().text = "Layer " + layersGenerated;;
+			newLayer.GetComponentInChildren<Text> ().text = "Layer " + layersGenerated;
 			newLayer.GetComponent<Layer> ().basePosition = spawnPosition;
 
 			layersGenerated++;
@@ -42,7 +46,9 @@ public class CompositeImage : MonoBehaviour {
 
 	public void ClearCanvas(){
 		foreach (Image layer in gameObject.GetComponentsInChildren<Image> ()) {
-			Destroy (layer.gameObject);
+			if (layer.gameObject != gameObject) {
+				Destroy (layer.gameObject);
+			}
 		}
 	}
 

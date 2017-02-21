@@ -12,16 +12,11 @@ public class ModeSwitcher : MonoBehaviour {
 	// Auto assigned by tag
 	public GameObject mainCanvas;
 
-	// Auto assigned by tag
-	// public GameObject inspectionZone;
-
-
 	// Auto assigned by tag 
 	public GameObject generationZone;
 
 	void Start () {
 		mainCanvas = GameObject.FindGameObjectWithTag ("MainCanvas");
-		// inspectionZone = GameObject.FindGameObjectWithTag ("InspectionZone");
 		generationZone = GameObject.FindGameObjectWithTag ("GenerationZone");
 	}
 
