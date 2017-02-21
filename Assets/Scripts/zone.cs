@@ -17,6 +17,7 @@ public class Zone : MonoBehaviour {
 
 	public string name;
 	public zBounds bounds;
+	public string type;
 
 	// Use this for initialization
 	void Start () {

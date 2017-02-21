@@ -13,19 +13,29 @@ public class ModeSwitcher : MonoBehaviour {
 	public GameObject mainCanvas;
 
 	// Auto assigned by tag
-	public GameObject inspectionZone;
+	// public GameObject inspectionZone;
+
+
+	// Auto assigned by tag 
+	public GameObject generationZone;
 
 	void Start () {
 		mainCanvas = GameObject.FindGameObjectWithTag ("MainCanvas");
-		inspectionZone = GameObject.FindGameObjectWithTag ("InspectionZone");
+		// inspectionZone = GameObject.FindGameObjectWithTag ("InspectionZone");
+		generationZone = GameObject.FindGameObjectWithTag ("GenerationZone");
 	}
 
 	void OnTriggerEnter(Collider other) {
-		if (other.gameObject.GetComponent<Zone> ()) {
-			switchMode (other.gameObject.GetComponent<Zone>().name);
-			if (textUpdateOnChange) {
-				textUpdateOnChange.GetComponent<Text> ().text = other.gameObject.GetComponent<Zone>().name;
-			} 
+		if (!other.gameObject.GetComponent<Zone> ()) 
+			return;
+
+		if (other.gameObject.GetComponent<Zone> ().type != "mode")
+			return;
+
+		switchMode (other.gameObject.GetComponent<Zone> ().name);
+
+		if (textUpdateOnChange) {
+			textUpdateOnChange.GetComponent<Text> ().text = other.gameObject.GetComponent<Zone>().name;
 		}
 	}
 
@@ -34,16 +44,18 @@ public class ModeSwitcher : MonoBehaviour {
 
 		switch (mode){
 		case "overview":
+			mainCanvas.GetComponent<CompositeImage> ().ShowFrame ();
 			foreach(GameObject layer in GameObject.FindGameObjectsWithTag("Layer")){
 				layer.GetComponent<Layer> ().copyToCanvas ();
 				Destroy (layer);
 			}
 			break;
 		case "inspection":
-			float zMin = inspectionZone.GetComponent<Zone> ().bounds.zMin;
-			float zMax = inspectionZone.GetComponent<Zone> ().bounds.zMax;
+			float zMin = generationZone.GetComponent<Zone> ().bounds.zMin;
+			float zMax = generationZone.GetComponent<Zone> ().bounds.zMax;
 			mainCanvas.GetComponent<CompositeImage> ().GenerateLayers (zMin, zMax);
 			mainCanvas.GetComponent<CompositeImage> ().ClearCanvas ();
+			mainCanvas.GetComponent<CompositeImage> ().HideFrame ();
 			break;
 		default:
 			break;

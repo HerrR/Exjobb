@@ -45,4 +45,14 @@ public class CompositeImage : MonoBehaviour {
 			Destroy (layer.gameObject);
 		}
 	}
+
+	public void HideFrame(){
+		GameObject frame = gameObject.transform.FindChild ("Frame").gameObject;
+		frame.SetActive (false);
+	}
+
+	public void ShowFrame(){
+		GameObject frame = gameObject.transform.FindChild ("Frame").gameObject;
+		frame.SetActive (true);
+	}
 }
