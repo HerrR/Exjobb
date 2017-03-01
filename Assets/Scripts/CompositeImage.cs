@@ -8,7 +8,11 @@ public class CompositeImage : MonoBehaviour {
 	public GameObject layerPrefab;
 
 	public void GenerateLayers(float zMin, float zMax){
+		Debug.Log ("Generate layers called");
 		Image[] layers = gameObject.GetComponentsInChildren<Image> ();
+//		Debug.Log (layers.OrderByDescending (img => img.gameObject.GetComponent<Layer> ().basePosition.z).ToArray ());
+//		layers = GameObject.FindGameObjectsWithTag ("Layer").OrderByDescending (go => go.transform.position.z).ToArray ();
+//		layers = layers.OrderByDescending (img => img.gameObject.GetComponent<Layer> ().basePosition.z).ToArray ();
 
 		int layersGenerated = 0;
 		float distanceBetweenLayers = (zMax - zMin) / layers.Length;
