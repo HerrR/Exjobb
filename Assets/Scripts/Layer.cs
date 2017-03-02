@@ -12,6 +12,7 @@ public class Layer : MonoBehaviour {
 
 	private float zMax;
 	private float zMin;
+	public Image layerImage;
 
 	void Start () {
 		mainCanvas = GameObject.FindGameObjectWithTag ("MainCanvas");
@@ -20,11 +21,27 @@ public class Layer : MonoBehaviour {
 		zMax = inspectionZone.GetComponent<Zone> ().bounds.zMax;
 		zMin = inspectionZone.GetComponent<Zone> ().bounds.zMin;
 		accordion = true;
+		FindLayerImage ();
 	}
 
 	void Update(){
 		if (accordion) {
 			AccordionMove ();
+		}
+	}
+
+	// TODO: Fix this shit
+	public bool isSelected() {
+		return true;
+	}
+
+	void FindLayerImage(){
+		Image[] layerImages = gameObject.GetComponentsInChildren<Image> ();
+
+		foreach (Image img in layerImages) {
+			if (img.gameObject.tag != "DontCopy") {
+				layerImage = img;
+			}
 		}
 	}
 
@@ -40,7 +57,6 @@ public class Layer : MonoBehaviour {
 
 	public void copyToCanvas(){
 		Quaternion canvasRotation = mainCanvas.transform.rotation;
-		Image layerImage = gameObject.GetComponentInChildren<Image> ();
 		Vector3 spawnPosition = layerImage.transform.position;
 		spawnPosition.z = mainCanvas.transform.position.z;
 
@@ -53,6 +69,4 @@ public class Layer : MonoBehaviour {
 
 		imageCopy.name = "Image";
 	}
-
-
 }

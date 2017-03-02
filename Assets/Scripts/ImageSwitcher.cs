@@ -7,23 +7,25 @@ public class ImageSwitcher : MonoBehaviour {
 
 	public Sprite defaultImage;
 	public Sprite activeImage;
-	public bool isSelected = false;
+	// public bool isSelected = false;
 	private Image targetImage;
+	private LayerImage layerImage;
 
 	void Start () {
 		targetImage = gameObject.GetComponent<Image> ();
+		layerImage = gameObject.GetComponent<LayerImage> ();
 	}
 
 	void Update () {
-		if (isSelected && (targetImage.sprite == defaultImage)) {
+		if (layerImage.isSelected && (targetImage.sprite == defaultImage)) {
 			switchImage ();
-		} else if (!isSelected && (targetImage.sprite == activeImage)){
+		} else if (!layerImage.isSelected && (targetImage.sprite == activeImage)){
 			switchImage ();
 		}
 	}
 
 	public void switchImage() {
-		if (isSelected) {
+		if (layerImage.isSelected) {
 			targetImage.sprite = activeImage;
 		} else {
 			targetImage.sprite = defaultImage;	

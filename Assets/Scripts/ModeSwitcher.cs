@@ -41,6 +41,7 @@ public class ModeSwitcher : MonoBehaviour {
 		case "overview":
 			mainCanvas.GetComponent<CompositeImage> ().ShowFrame ();
 			foreach(GameObject layer in GameObject.FindGameObjectsWithTag("Layer")){
+				Debug.Log ("Copying and destroying", layer);
 				layer.GetComponent<Layer> ().copyToCanvas ();
 				Destroy (layer);
 			}
