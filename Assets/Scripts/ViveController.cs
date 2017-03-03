@@ -23,13 +23,29 @@ public class ViveController : MonoBehaviour {
 
 		// Trackpad
 		if (device.GetAxis ().x != 0 || device.GetAxis ().y != 0) {
-			Debug.Log (device.GetAxis ().x + " " + device.GetAxis ().y);
+			Vector2 movementVector = new Vector2 (device.GetAxis ().x, device.GetAxis ().y);
+			MoveImages (movementVector);
 		}
 
 		// Trigger
 		if (device.GetPressDown (SteamVR_Controller.ButtonMask.Trigger)) {
 			device.TriggerHapticPulse (3500);
 			controllerSelectionManager.OnViveControllerTrigger ();
+		}
+	}
+
+	void MoveImages(Vector2 movementVector){
+		GameObject[] allImages = GameObject.FindGameObjectsWithTag ("Image");
+
+		foreach(GameObject img in allImages) {
+			if (!img.GetComponent<LayerImage> ()) {
+				Debug.LogError ("Missing LayerImage component on object with Image tag:" + img.name, img);
+				continue;
+			}
+
+			if (img.GetComponent<LayerImage> ().isSelected) {
+				img.GetComponent<LayerImage> ().MoveImage (movementVector);
+			}
 		}
 	}
 }

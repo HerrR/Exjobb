@@ -3,39 +3,41 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ControllerSelectionManager : MonoBehaviour {
-	ViveController controller;
+	private ViveController controller;
 	private ushort vibrationForce = 3000;
-	public GameObject hoveredObject;
+	public GameObject targetObject;
 
-	// Use this for initialization
 	void Start () {
 		controller = gameObject.transform.parent.GetComponent<ViveController> ();
-		Debug.Log (hoveredObject);
 	}
 
 	void OnTriggerEnter(Collider other) {
 		if (other.gameObject.tag == "Image") {
-			// Debug.Log ("Collision detected!", other.gameObject);
-
 			controller.Vibrate (vibrationForce);
-			hoveredObject = other.gameObject;
+			targetObject = other.gameObject;
+		}
+	}
 
-			// if(other.gameObject.GetComponent<ImageSwitcher>()){
-			//	ImageSwitcher imgSwitch = other.gameObject.GetComponent<ImageSwitcher> ();
-			//	imgSwitch.isSelected = !imgSwitch.isSelected;
-			// }
+	void OnTriggerStay(Collider other) {
+		if (other.gameObject.GetComponent<LayerImage> ()) {
+			other.gameObject.GetComponent<LayerImage> ().isHovered = true;
 		}
 	}
 
 	void OnTriggerExit(Collider other) {
-		if (other.gameObject == hoveredObject) {
-			hoveredObject = null;
+		if (other.gameObject.GetComponent<LayerImage> ()) {
+			other.gameObject.GetComponent<LayerImage> ().isHovered = false;
+		}
+
+		if (other.gameObject == targetObject) {
+			targetObject = null;
 		}
 	}
 
 	public void OnViveControllerTrigger(){
-		if (hoveredObject) {
-			LayerImage layerImage = hoveredObject.gameObject.GetComponent<LayerImage> ();
+		Debug.Log ("Vive controller trigger");
+		if (targetObject) {
+			LayerImage layerImage = targetObject.gameObject.GetComponent<LayerImage> ();
 			layerImage.ToggleSelection ();
 		}
 	}

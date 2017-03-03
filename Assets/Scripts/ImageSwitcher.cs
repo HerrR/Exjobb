@@ -6,8 +6,9 @@ using UnityEngine.UI;
 public class ImageSwitcher : MonoBehaviour {
 
 	public Sprite defaultImage;
+	public Sprite hoverImage;
 	public Sprite activeImage;
-	// public bool isSelected = false;
+
 	private Image targetImage;
 	private LayerImage layerImage;
 
@@ -17,13 +18,34 @@ public class ImageSwitcher : MonoBehaviour {
 	}
 
 	void Update () {
+		AdaptImage ();
+
+		/*
 		if (layerImage.isSelected && (targetImage.sprite == defaultImage)) {
 			switchImage ();
 		} else if (!layerImage.isSelected && (targetImage.sprite == activeImage)){
 			switchImage ();
 		}
+		*/
 	}
 
+	void AdaptImage() {
+		if (layerImage.isHovered && (targetImage.sprite != hoverImage)) {
+			targetImage.sprite = hoverImage;
+			return;
+		}
+
+		if (layerImage.isSelected && (targetImage.sprite != activeImage)) {
+			targetImage.sprite = activeImage;
+			return;
+		}
+
+		if(!layerImage.isSelected && !layerImage.isHovered && (targetImage.sprite != defaultImage)) {
+			targetImage.sprite = defaultImage;
+			return;
+		}
+	}
+	/*
 	public void switchImage() {
 		if (layerImage.isSelected) {
 			targetImage.sprite = activeImage;
@@ -31,4 +53,5 @@ public class ImageSwitcher : MonoBehaviour {
 			targetImage.sprite = defaultImage;	
 		}
 	}
+	*/
 }
