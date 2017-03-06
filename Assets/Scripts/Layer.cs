@@ -6,7 +6,10 @@ using UnityEngine.UI;
 public class Layer : MonoBehaviour {
 	public GameObject mainCanvas;
 	public GameObject mainCamera;
+
 	public GameObject inspectionZone;
+	public GameObject generationZone;
+
 	public Vector3 basePosition;
 	public bool accordion;
 
@@ -18,8 +21,9 @@ public class Layer : MonoBehaviour {
 		mainCanvas = GameObject.FindGameObjectWithTag ("MainCanvas");
 		mainCamera = GameObject.FindGameObjectWithTag ("MainCamera");
 		inspectionZone = GameObject.FindGameObjectWithTag ("InspectionZone");
-		zMax = inspectionZone.GetComponent<Zone> ().bounds.zMax;
-		zMin = inspectionZone.GetComponent<Zone> ().bounds.zMin;
+		generationZone = GameObject.FindGameObjectWithTag ("GenerationZone");
+		zMax = generationZone.GetComponent<Zone> ().bounds.zMax;
+		zMin = generationZone.GetComponent<Zone> ().bounds.zMin;
 		accordion = true;
 		FindLayerImage ();
 	}
@@ -30,9 +34,8 @@ public class Layer : MonoBehaviour {
 		}
 	}
 
-	// TODO: Fix this shit
 	public bool isSelected() {
-		return true;
+		return layerImage.GetComponent<LayerImage> ().isSelected;
 	}
 
 	void FindLayerImage(){

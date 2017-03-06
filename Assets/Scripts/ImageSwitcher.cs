@@ -19,39 +19,33 @@ public class ImageSwitcher : MonoBehaviour {
 
 	void Update () {
 		AdaptImage ();
-
-		/*
-		if (layerImage.isSelected && (targetImage.sprite == defaultImage)) {
-			switchImage ();
-		} else if (!layerImage.isSelected && (targetImage.sprite == activeImage)){
-			switchImage ();
-		}
-		*/
 	}
 
 	void AdaptImage() {
-		if (layerImage.isHovered && (targetImage.sprite != hoverImage)) {
-			targetImage.sprite = hoverImage;
+		if(layerImage.isSelected && layerImage.isHovered) {
+			if (targetImage.sprite != activeImage) {
+				targetImage.sprite = activeImage;
+			}
 			return;
 		}
 
-		if (layerImage.isSelected && (targetImage.sprite != activeImage)) {
-			targetImage.sprite = activeImage;
+		if (layerImage.isSelected) {
+			if (targetImage.sprite != activeImage) {
+				targetImage.sprite = activeImage;
+			}
 			return;
 		}
 
-		if(!layerImage.isSelected && !layerImage.isHovered && (targetImage.sprite != defaultImage)) {
+		if (layerImage.isHovered) {
+			if (targetImage.sprite != hoverImage) {
+				targetImage.sprite = hoverImage;
+			}
+			return;
+		}
+
+		if (targetImage.sprite != defaultImage) {
 			targetImage.sprite = defaultImage;
 			return;
 		}
 	}
-	/*
-	public void switchImage() {
-		if (layerImage.isSelected) {
-			targetImage.sprite = activeImage;
-		} else {
-			targetImage.sprite = defaultImage;	
-		}
-	}
-	*/
 }

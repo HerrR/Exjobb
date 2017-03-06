@@ -19,15 +19,14 @@ public class Zone : MonoBehaviour {
 	public zBounds bounds;
 	public string type;
 
-	// Use this for initialization
-	void Start () {
+	void Awake() {
 		BoxCollider boxCollider = gameObject.GetComponent<BoxCollider> ();
-
+		
 		if (boxCollider) {
 			bounds = new zBounds (
 				boxCollider.bounds.center.z - boxCollider.bounds.extents.z,
 				boxCollider.bounds.center.z + boxCollider.bounds.extents.z
-
+				
 			);
 		} else {
 			Debug.LogError ("Box collider not found for " + name + " zone");

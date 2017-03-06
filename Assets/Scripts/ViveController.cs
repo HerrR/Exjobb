@@ -7,17 +7,12 @@ public class ViveController : MonoBehaviour {
 	private SteamVR_Controller.Device device;
 	private ControllerSelectionManager controllerSelectionManager;
 
-	// Use this for initialization
 	void Start () {
 		trackedObject = GetComponent<SteamVR_TrackedObject> ();
 		controllerSelectionManager = gameObject.GetComponentInChildren<ControllerSelectionManager> ();
 	}
 		
-	public void Vibrate(ushort force) {
-		device.TriggerHapticPulse (force);
-	}
 
-	// Update is called once per frame
 	void Update () {
 		device = SteamVR_Controller.Input ((int)trackedObject.index);
 
@@ -27,11 +22,45 @@ public class ViveController : MonoBehaviour {
 			MoveImages (movementVector);
 		}
 
-		// Trigger
+		// Trigger - Trigger on first click
 		if (device.GetPressDown (SteamVR_Controller.ButtonMask.Trigger)) {
-			device.TriggerHapticPulse (3500);
+			device.TriggerHapticPulse (1000);
 			controllerSelectionManager.OnViveControllerTrigger ();
 		}
+
+		// Trigger - Contiuous on trigger down
+		if (device.GetPress (SteamVR_Controller.ButtonMask.Trigger)) {
+			// 	
+		}
+
+		// Application menu
+		if (device.GetPressDown (SteamVR_Controller.ButtonMask.ApplicationMenu)) {
+			DeselectAll ();
+		}
+
+		// Grip
+		if (device.GetPressDown (SteamVR_Controller.ButtonMask.Grip)) {
+			DeselectAll ();
+		}
+	}
+
+	public void DeselectAll() {
+		GameObject[] allImages = GameObject.FindGameObjectsWithTag ("Image");
+
+		foreach (GameObject img in allImages) {
+			if (!img.GetComponent<LayerImage> ()) {
+				Debug.LogError ("Missing LayerImage component on object with Image tag:" + img.name, img);
+				continue;
+			}
+
+			if (img.GetComponent<LayerImage> ().isSelected) {
+				img.GetComponent<LayerImage> ().ToggleSelection ();
+			}
+		}
+	}
+
+	public void Vibrate(ushort force) {
+		device.TriggerHapticPulse (force);
 	}
 
 	void MoveImages(Vector2 movementVector){

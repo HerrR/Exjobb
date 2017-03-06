@@ -20,7 +20,13 @@ public class ControllerSelectionManager : MonoBehaviour {
 
 	void OnTriggerStay(Collider other) {
 		if (other.gameObject.GetComponent<LayerImage> ()) {
-			other.gameObject.GetComponent<LayerImage> ().isHovered = true;
+			if (!other.gameObject.GetComponent<LayerImage> ().isHovered) {
+				other.gameObject.GetComponent<LayerImage> ().ToggleHovered ();
+			}
+
+			if(targetObject == null) {
+				targetObject = other.gameObject;
+			}
 		}
 	}
 
@@ -35,7 +41,6 @@ public class ControllerSelectionManager : MonoBehaviour {
 	}
 
 	public void OnViveControllerTrigger(){
-		Debug.Log ("Vive controller trigger");
 		if (targetObject) {
 			LayerImage layerImage = targetObject.gameObject.GetComponent<LayerImage> ();
 			layerImage.ToggleSelection ();

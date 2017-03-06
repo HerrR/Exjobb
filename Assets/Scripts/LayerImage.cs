@@ -8,10 +8,13 @@ public class LayerImage : MonoBehaviour {
 	public bool isHovered;
 	private float movementSpeed = 1500f;
 
+	private GameObject mainCanvas;
+
 	private RectTransform rectTransform;
 
 	void Start() {
 		rectTransform = gameObject.GetComponent<RectTransform>();
+		mainCanvas = GameObject.FindGameObjectWithTag ("MainCanvas");
 	}
 
 	public void ToggleHovered() {
@@ -25,8 +28,8 @@ public class LayerImage : MonoBehaviour {
 	public void MoveImage(Vector2 direction){
 		// Debug.Log ("Move image called with x: " + direction.x + " and y: " + direction.y, gameObject);
 
-		float mainCanvasHeight = GameObject.FindGameObjectWithTag ("MainCanvas").GetComponent<RectTransform> ().rect.height;
-		float mainCanvasWidth = GameObject.FindGameObjectWithTag ("MainCanvas").GetComponent<RectTransform> ().rect.width;
+		float mainCanvasHeight = mainCanvas.GetComponent<RectTransform> ().rect.height;
+		float mainCanvasWidth = mainCanvas.GetComponent<RectTransform> ().rect.width;
 
 		float minX = -1 * (mainCanvasWidth / 2 + rectTransform.rect.width / 2);
 		float maxX =  mainCanvasWidth / 2 + rectTransform.rect.width / 2;

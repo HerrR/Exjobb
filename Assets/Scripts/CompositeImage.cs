@@ -8,9 +8,12 @@ using System;
 public class CompositeImage : MonoBehaviour {
 	public GameObject layerPrefab;
 	public Image canvasFrame;
+	public Zone layerGenerationZone;
 
 	void Start() {
 		FindCanvasFrame ();
+		FindGenerationZone ();
+		PositionCanvasToGenerationZone ();
 	}
 
 	void FindCanvasFrame() {
@@ -21,6 +24,30 @@ public class CompositeImage : MonoBehaviour {
 			Debug.LogError ("Could not find canvas frame");
 		}
 		#pragma warning restore 0168
+	}
+
+	void FindGenerationZone() {
+		#pragma warning disable 0168
+		try {
+			layerGenerationZone = GameObject.FindGameObjectWithTag("GenerationZone").GetComponent<Zone>();
+		} catch (Exception e) {
+		
+			Debug.LogError ("Failed to find generation zone");
+		}
+		#pragma warning restore 0168
+	}
+
+	void PositionCanvasToGenerationZone() {
+		Debug.Log ("Repositioning canvas");
+		Vector3 currentPosition = gameObject.transform.position;
+		Vector3 newPosition = new Vector3 (
+			currentPosition.x, 
+			currentPosition.y, 
+			layerGenerationZone.bounds.zMax
+		);
+		Debug.Log (layerGenerationZone.bounds.zMax + " " + layerGenerationZone.bounds.zMin);
+		Debug.Log ("Old Z: " + currentPosition.z + ". New Z: " + newPosition.z);
+		gameObject.transform.position = newPosition;
 	}
 
 	Image[] GetLayersExcludingCanvasAndFrame(){
@@ -87,13 +114,9 @@ public class CompositeImage : MonoBehaviour {
 
 	public void HideFrame(){
 		canvasFrame.gameObject.SetActive (false);
-		// GameObject frame = GameObject.FindGameObjectWithTag ("CanvasFrame");
-		// frame.SetActive (false);
 	}
 
 	public void ShowFrame(){
 		canvasFrame.gameObject.SetActive (true);
-		// GameObject frame = GameObject.FindGameObjectWithTag ("CanvasFrame");
-		// frame.SetActive (true);
 	}
 }
