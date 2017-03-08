@@ -38,15 +38,12 @@ public class CompositeImage : MonoBehaviour {
 	}
 
 	void PositionCanvasToGenerationZone() {
-		Debug.Log ("Repositioning canvas");
 		Vector3 currentPosition = gameObject.transform.position;
 		Vector3 newPosition = new Vector3 (
 			currentPosition.x, 
 			currentPosition.y, 
 			layerGenerationZone.bounds.zMax
 		);
-		Debug.Log (layerGenerationZone.bounds.zMax + " " + layerGenerationZone.bounds.zMin);
-		Debug.Log ("Old Z: " + currentPosition.z + ". New Z: " + newPosition.z);
 		gameObject.transform.position = newPosition;
 	}
 

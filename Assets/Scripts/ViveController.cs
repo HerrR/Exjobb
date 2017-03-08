@@ -7,74 +7,54 @@ public class ViveController : MonoBehaviour {
 	private SteamVR_Controller.Device device;
 	private ControllerSelectionManager controllerSelectionManager;
 
+	private float triggerLastPressed;
+	private float triggerDownToHoldTime;
+
 	void Start () {
 		trackedObject = GetComponent<SteamVR_TrackedObject> ();
 		controllerSelectionManager = gameObject.GetComponentInChildren<ControllerSelectionManager> ();
+		triggerDownToHoldTime = 1.5f;
 	}
-		
 
 	void Update () {
 		device = SteamVR_Controller.Input ((int)trackedObject.index);
 
 		// Trackpad
 		if (device.GetAxis ().x != 0 || device.GetAxis ().y != 0) {
-			Vector2 movementVector = new Vector2 (device.GetAxis ().x, device.GetAxis ().y);
-			MoveImages (movementVector);
+			controllerSelectionManager.OnViveControllerTrackpad (new Vector2 (device.GetAxis ().x, device.GetAxis ().y));
 		}
 
 		// Trigger - Trigger on first click
 		if (device.GetPressDown (SteamVR_Controller.ButtonMask.Trigger)) {
-			device.TriggerHapticPulse (1000);
+			triggerLastPressed = Time.time;
 			controllerSelectionManager.OnViveControllerTrigger ();
 		}
 
 		// Trigger - Contiuous on trigger down
 		if (device.GetPress (SteamVR_Controller.ButtonMask.Trigger)) {
-			// 	
+			if (Time.time - triggerLastPressed > triggerDownToHoldTime) {
+				controllerSelectionManager.OnViveControllerTriggerHold (gameObject.transform.position);
+			} 
+		}
+
+		// Trigger - Released
+		if (device.GetPressUp (SteamVR_Controller.ButtonMask.Trigger)) {
+			triggerLastPressed = default(float);
+			controllerSelectionManager.OnViveControllerTriggerRelease ();
 		}
 
 		// Application menu
 		if (device.GetPressDown (SteamVR_Controller.ButtonMask.ApplicationMenu)) {
-			DeselectAll ();
+			controllerSelectionManager.OnViveControllerApplicationMenu ();
 		}
 
 		// Grip
 		if (device.GetPressDown (SteamVR_Controller.ButtonMask.Grip)) {
-			DeselectAll ();
-		}
-	}
-
-	public void DeselectAll() {
-		GameObject[] allImages = GameObject.FindGameObjectsWithTag ("Image");
-
-		foreach (GameObject img in allImages) {
-			if (!img.GetComponent<LayerImage> ()) {
-				Debug.LogError ("Missing LayerImage component on object with Image tag:" + img.name, img);
-				continue;
-			}
-
-			if (img.GetComponent<LayerImage> ().isSelected) {
-				img.GetComponent<LayerImage> ().ToggleSelection ();
-			}
+			controllerSelectionManager.OnViveControllerGrip ();
 		}
 	}
 
 	public void Vibrate(ushort force) {
 		device.TriggerHapticPulse (force);
-	}
-
-	void MoveImages(Vector2 movementVector){
-		GameObject[] allImages = GameObject.FindGameObjectsWithTag ("Image");
-
-		foreach(GameObject img in allImages) {
-			if (!img.GetComponent<LayerImage> ()) {
-				Debug.LogError ("Missing LayerImage component on object with Image tag:" + img.name, img);
-				continue;
-			}
-
-			if (img.GetComponent<LayerImage> ().isSelected) {
-				img.GetComponent<LayerImage> ().MoveImage (movementVector);
-			}
-		}
 	}
 }
