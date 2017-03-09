@@ -42,21 +42,12 @@ public class ModeSwitcher : MonoBehaviour {
 		case "overview":
 			mainCanvas.GetComponent<CompositeImage> ().ShowFrame ();
 			List<Layer> allLayers = GameObject.FindObjectsOfType<Layer> ().ToList ();
-			// GameObject.FindGameObjectsWithTag ("Layer").ToList ();
 			allLayers.Sort (Layer.SortLayerByBasePosZ);
 			allLayers.Reverse ();
 			foreach (Layer layer in allLayers) {
 				layer.copyToCanvas ();
 				Destroy (layer.gameObject);
 			}
-			// for(int i = 0; i < allLayers.Count; i++){
-			/*
-			 foreach(GameObject layer in GameObject.FindGameObjectsWithTag("Layer")){
-				Debug.Log ("Copying and destroying", layer);
-				layer.GetComponent<Layer> ().copyToCanvas ();
-				Destroy (layer);
-			}
-			*/
 			break;
 		case "inspection":
 			float zMin = generationZone.GetComponent<Zone> ().bounds.zMin;

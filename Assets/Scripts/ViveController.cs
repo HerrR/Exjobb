@@ -13,7 +13,7 @@ public class ViveController : MonoBehaviour {
 	void Start () {
 		trackedObject = GetComponent<SteamVR_TrackedObject> ();
 		controllerSelectionManager = gameObject.GetComponentInChildren<ControllerSelectionManager> ();
-		triggerDownToHoldTime = 1.5f;
+		triggerDownToHoldTime = 0.5f;
 	}
 
 	void Update () {

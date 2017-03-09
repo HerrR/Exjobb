@@ -5,10 +5,15 @@ using UnityEngine.UI;
 using System.Linq;
 
 public class Layer : MonoBehaviour {
+	public delegate void WhenMoveComplete();
+	WhenMoveComplete whenMoveComplete;
+
+	public IEnumerator movementRoutine;
+
 	private GameObject mainCanvas;
 	private GameObject mainCamera;
 
-	private GameObject inspectionZone;
+	// private GameObject inspectionZone;
 	private GameObject generationZone;
 
 	public Vector3 basePosition;
@@ -18,6 +23,9 @@ public class Layer : MonoBehaviour {
 	private float zMin;
 	public Image layerImage;
 	private float movementSpeed = 1.5f;
+
+	public bool moveFromToRunning;
+	public bool accordionToggleInProcess;
 
 	public Neighbours neighbours;
 
@@ -38,11 +46,13 @@ public class Layer : MonoBehaviour {
 	void Start () {
 		mainCanvas = GameObject.FindGameObjectWithTag ("MainCanvas");
 		mainCamera = GameObject.FindGameObjectWithTag ("MainCamera");
-		inspectionZone = GameObject.FindGameObjectWithTag ("InspectionZone");
+		// inspectionZone = GameObject.FindGameObjectWithTag ("InspectionZone");
 		generationZone = GameObject.FindGameObjectWithTag ("GenerationZone");
 		zMax = generationZone.GetComponent<Zone> ().bounds.zMax;
 		zMin = generationZone.GetComponent<Zone> ().bounds.zMin;
 		accordion = true;
+		accordionToggleInProcess = false;
+		moveFromToRunning = false;
 		FindLayerImage ();
 	}
 
@@ -60,20 +70,61 @@ public class Layer : MonoBehaviour {
 		Image[] layerImages = gameObject.GetComponentsInChildren<Image> ();
 
 		foreach (Image img in layerImages) {
-			if (img.gameObject.tag != "DontCopy") {
+			if (img.gameObject.tag == "Image") {
 				layerImage = img;
 			}
 		}
 	}
 
+	public void ToggleAccordion(){
+		if (accordionToggleInProcess) {
+			return;
+		}
+
+		Vector3 startingPosition;
+		Vector3 targetPosition;
+		if (!accordion) {
+			startingPosition = gameObject.transform.position;
+			targetPosition = GetAccordionPosition ();
+			whenMoveComplete += EnableAccordion;
+		} else {
+			startingPosition = GetAccordionPosition();
+			targetPosition = basePosition;
+			whenMoveComplete += DisableAccordion;
+			accordion = false;
+		}
+
+		CallMoveFromTo(gameObject.transform,
+			gameObject.transform.position,
+			targetPosition,
+			2.5f);
+		
+		accordionToggleInProcess = true;
+	}
+
+	public void EnableAccordion(){
+		whenMoveComplete -= EnableAccordion;
+		accordion = true;
+		accordionToggleInProcess = false;
+	}
+
+	public void DisableAccordion(){
+		whenMoveComplete -= DisableAccordion;
+		accordion = false;
+		accordionToggleInProcess = false;
+	}
+
 	void AccordionMove(){
+		gameObject.transform.position = GetAccordionPosition();
+	}
+
+	public Vector3 GetAccordionPosition(){
 		float offsetPos = 1000 * Mathf.Pow (
 			(basePosition.z - mainCamera.transform.position.z) - 0.3f
 			, 7);
-		Vector3 _pos = gameObject.transform.position;
-		_pos.z = Mathf.Clamp ((basePosition.z + offsetPos), zMin, zMax);
-
-		gameObject.transform.position = _pos;
+		Vector3 accordionPosition = gameObject.transform.position;
+		accordionPosition.z = Mathf.Clamp ((basePosition.z + offsetPos), zMin, zMax);
+		return accordionPosition;
 	}
 
 	public void MoveZ(float _zCoord){
@@ -100,18 +151,33 @@ public class Layer : MonoBehaviour {
 		float newBasePositionZ = target.basePosition.z;
 		target.ChangeBasePositionZ (basePosition.z);
 		ChangeBasePositionZ (newBasePositionZ);
-		StartCoroutine(target.MoveFromTo(
+		target.CallMoveFromTo(
 			target.gameObject.transform, 
 			target.gameObject.transform.position, 
 			target.basePosition, 
-			movementSpeed));
+			movementSpeed);
 	}
 
 	public void ChangeBasePositionZ(float _z){
 		basePosition.z = _z;
 	}
 
+	public void CallMoveFromTo(Transform _objectToMove, Vector3 _a, Vector3 _b, float _speed){
+		if (moveFromToRunning) {
+			try {
+				StopCoroutine (movementRoutine);
+				moveFromToRunning = false;
+			} catch {
+				Debug.LogError ("Failed to stop coroutine", gameObject);	
+			}
+		}
+
+		movementRoutine = MoveFromTo (_objectToMove, _a, _b, _speed);
+		StartCoroutine (movementRoutine);
+	}
+
 	public IEnumerator MoveFromTo(Transform objectToMove, Vector3 a, Vector3 b, float speed){
+		moveFromToRunning = true;
 		float step = (speed / (a - b).magnitude) * Time.deltaTime;
 		float t = 0;
 		while (t <= 1.0f) {
@@ -120,6 +186,12 @@ public class Layer : MonoBehaviour {
 			yield return new WaitForFixedUpdate ();
 		}
 		objectToMove.position = b;
+		moveFromToRunning = false;
+		try {
+			whenMoveComplete ();
+		} catch {
+			// Debug.Log ("No moveComplete delegate methods");
+		}
 	}
 
 	Neighbours FindNeighbours(){
@@ -152,7 +224,7 @@ public class Layer : MonoBehaviour {
 		return new Neighbours ();
 	}
 
-	public void copyToCanvas(){
+	public Image copyToCanvas(){
 		Quaternion canvasRotation = mainCanvas.transform.rotation;
 		Vector3 spawnPosition = layerImage.transform.position;
 		spawnPosition.z = mainCanvas.transform.position.z;
@@ -165,5 +237,7 @@ public class Layer : MonoBehaviour {
 		);
 
 		imageCopy.name = "Image";
+
+		return imageCopy;
 	}
 }

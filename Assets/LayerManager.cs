@@ -14,7 +14,7 @@ public class LayerManager : MonoBehaviour {
 	public void ToggleRearrangementMode(){
 		if (!rearrangementMode) {
 			DisableAccordionEffect ();
-			LayersToOriginalPositions ();
+			// LayersToOriginalPositions ();
 		} else {
 			EnableAccordionEffect ();
 		}
@@ -41,7 +41,9 @@ public class LayerManager : MonoBehaviour {
 	public void DisableAccordionEffect() {
 		foreach (GameObject img in GameObject.FindGameObjectsWithTag ("Image")) {
 			try{
-				img.transform.parent.GetComponentInChildren<Layer>().accordion = false;	
+				if(img.transform.parent.GetComponentInChildren<Layer>().accordion){
+					img.transform.parent.GetComponentInChildren<Layer>().ToggleAccordion();
+				}
 			} catch {
 				Debug.LogError ("Failed to disable accordion effect", img);
 			}
@@ -51,7 +53,9 @@ public class LayerManager : MonoBehaviour {
 	public void EnableAccordionEffect() {
 		foreach (GameObject img in GameObject.FindGameObjectsWithTag ("Image")) {
 			try{
-				img.transform.parent.GetComponentInChildren<Layer>().accordion = true;	
+				if(!img.transform.parent.GetComponentInChildren<Layer>().accordion){
+					img.transform.parent.GetComponentInChildren<Layer>().ToggleAccordion();
+				}
 			} catch {
 				Debug.LogError ("Failed to enable accordion effect", img);
 			}

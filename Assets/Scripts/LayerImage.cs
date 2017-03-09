@@ -7,9 +7,7 @@ public class LayerImage : MonoBehaviour {
 	public bool isSelected;
 	public bool isHovered;
 	private float movementSpeed = 1500f;
-
 	private GameObject mainCanvas;
-
 	private RectTransform rectTransform;
 
 	void Start() {
@@ -26,8 +24,6 @@ public class LayerImage : MonoBehaviour {
 	}
 
 	public void MoveImage(Vector2 direction){
-		// Debug.Log ("Move image called with x: " + direction.x + " and y: " + direction.y, gameObject);
-
 		float mainCanvasHeight = mainCanvas.GetComponent<RectTransform> ().rect.height;
 		float mainCanvasWidth = mainCanvas.GetComponent<RectTransform> ().rect.width;
 

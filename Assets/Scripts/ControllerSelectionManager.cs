@@ -7,6 +7,7 @@ public class ControllerSelectionManager : MonoBehaviour {
 	private LayerManager layerManager;
 	private ushort vibrationForce = 3000;
 	public GameObject targetObject;
+	public GameObject lastClickedObject;
 	public bool arrangingLayers;
 
 	void Start () {
@@ -57,16 +58,18 @@ public class ControllerSelectionManager : MonoBehaviour {
 	}
 
 	public void OnViveControllerTrigger(){
-		if (targetObject)
+		if (targetObject) {
 			targetObject.gameObject.GetComponent<LayerImage> ().ToggleSelection();
+			lastClickedObject = targetObject;
+		}
 	}
 
 	public void OnViveControllerTriggerHold(Vector3 devicePosition) {
 		if (!layerManager.rearrangementMode)
 			layerManager.ToggleRearrangementMode ();
 
-		if (targetObject)
-			layerManager.MoveLayer (targetObject, devicePosition);
+		if (lastClickedObject)
+			layerManager.MoveLayer (lastClickedObject, devicePosition);
 	}
 
 	public void OnViveControllerTriggerRelease() {
