@@ -64,10 +64,6 @@ public class CompositeImage : MonoBehaviour {
 	}
 
 	public void GenerateLayers(float zMin, float zMax){
-//		Debug.Log (layers.OrderByDescending (img => img.gameObject.GetComponent<Layer> ().basePosition.z).ToArray ());
-//		layers = GameObject.FindGameObjectsWithTag ("Layer").OrderByDescending (go => go.transform.position.z).ToArray ();
-//		layers = layers.OrderByDescending (img => img.gameObject.GetComponent<Layer> ().basePosition.z).ToArray ();
-
 		Image[] layers = GetLayersExcludingCanvasAndFrame ();
 
 		int layersGenerated = 0;
@@ -97,7 +93,7 @@ public class CompositeImage : MonoBehaviour {
 				spawnRotation,
 				newLayer.transform
 			);
-				
+
 			layersGenerated++;
 		}
 	}

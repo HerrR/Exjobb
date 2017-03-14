@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 
 public class LayerManager : MonoBehaviour {
 	public bool rearrangementMode;
@@ -14,7 +15,6 @@ public class LayerManager : MonoBehaviour {
 	public void ToggleRearrangementMode(){
 		if (!rearrangementMode) {
 			DisableAccordionEffect ();
-			// LayersToOriginalPositions ();
 		} else {
 			EnableAccordionEffect ();
 		}
@@ -29,13 +29,11 @@ public class LayerManager : MonoBehaviour {
 			layerGameObject.GetComponent<LayerImage> ().ToggleSelection ();
 		}
 
-		layerGameObject.transform.parent.GetComponent<Layer>().MoveZ(_targetPosition.z);
-		/*
 		try{
+			layerGameObject.transform.parent.GetComponent<Layer>().MoveZ(_targetPosition.z);
 		} catch {
 			Debug.Log ("Couldn't move layer");
 		}
-		*/
 	}
 
 	public void DisableAccordionEffect() {
@@ -58,16 +56,6 @@ public class LayerManager : MonoBehaviour {
 				}
 			} catch {
 				Debug.LogError ("Failed to enable accordion effect", img);
-			}
-		}
-	}
-
-	public void LayersToOriginalPositions(){
-		foreach(GameObject img in GameObject.FindGameObjectsWithTag ("Image")) {
-			try{
-				img.transform.parent.position = img.transform.parent.gameObject.GetComponent<Layer>().basePosition;	
-			} catch {
-				Debug.LogError ("Failed to update original position ", img);
 			}
 		}
 	}
@@ -98,6 +86,20 @@ public class LayerManager : MonoBehaviour {
 
 			if (img.GetComponent<LayerImage> ().isSelected) 
 				img.GetComponent<LayerImage> ().MoveImage (movementVector);
+		}
+	}
+
+	public void GenerateShadowImages(){
+		List<Layer> allLayers = GameObject.FindObjectsOfType<Layer> ().ToList ();
+		allLayers.Sort (Layer.SortLayerByBasePosZ);
+		allLayers.Reverse ();
+
+		foreach (Layer layer in allLayers) {
+			if (layer.HasShadowImage ()) {
+				layer.DestroyShadowImage ();
+			}
+
+			layer.CreateShadowImage ();
 		}
 	}
 }

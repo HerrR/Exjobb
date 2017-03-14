@@ -45,7 +45,8 @@ public class ModeSwitcher : MonoBehaviour {
 			allLayers.Sort (Layer.SortLayerByBasePosZ);
 			allLayers.Reverse ();
 			foreach (Layer layer in allLayers) {
-				layer.copyToCanvas ();
+				layer.CopyToCanvas ();
+				layer.DestroyShadowImage ();
 				Destroy (layer.gameObject);
 			}
 			break;

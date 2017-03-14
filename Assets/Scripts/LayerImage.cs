@@ -10,9 +10,12 @@ public class LayerImage : MonoBehaviour {
 	private GameObject mainCanvas;
 	private RectTransform rectTransform;
 
+	void Awake() {
+		mainCanvas = GameObject.FindGameObjectWithTag ("MainCanvas");
+	}
+
 	void Start() {
 		rectTransform = gameObject.GetComponent<RectTransform>();
-		mainCanvas = GameObject.FindGameObjectWithTag ("MainCanvas");
 	}
 
 	public void ToggleHovered() {

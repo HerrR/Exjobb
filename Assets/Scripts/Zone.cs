@@ -26,7 +26,6 @@ public class Zone : MonoBehaviour {
 			bounds = new zBounds (
 				boxCollider.bounds.center.z - boxCollider.bounds.extents.z,
 				boxCollider.bounds.center.z + boxCollider.bounds.extents.z
-				
 			);
 		} else {
 			Debug.LogError ("Box collider not found for " + name + " zone");
