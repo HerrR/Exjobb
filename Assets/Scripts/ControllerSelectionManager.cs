@@ -24,6 +24,11 @@ public class ControllerSelectionManager : MonoBehaviour {
 			controller.Vibrate (vibrationForce);
 			targetObject = other.gameObject;
 		}
+
+		if (other.gameObject.tag == "Lever") {
+			controller.Vibrate (vibrationForce);
+			targetObject = other.gameObject;
+		}
 	}
 
 	void OnTriggerStay(Collider other) {
@@ -31,7 +36,7 @@ public class ControllerSelectionManager : MonoBehaviour {
 			return;
 
 		if (other.gameObject.GetComponent<LayerImage> ()) {
-			if(targetObject == null)
+			if (targetObject == null)
 				targetObject = other.gameObject;
 
 			if (targetObject == other.gameObject) {
@@ -39,10 +44,12 @@ public class ControllerSelectionManager : MonoBehaviour {
 					other.gameObject.GetComponent<LayerImage> ().ToggleHovered ();
 
 			} else {
-				if (other.gameObject.GetComponent<LayerImage> ().isHovered) 
+				if (other.gameObject.GetComponent<LayerImage> ().isHovered)
 					other.gameObject.GetComponent<LayerImage> ().ToggleHovered ();
 				
 			}
+		} else if (other.gameObject.GetComponent<Lever> ()) {
+			// Whatever happens when the lever is continujously hovered with controller
 		}
 	}
 
@@ -58,9 +65,14 @@ public class ControllerSelectionManager : MonoBehaviour {
 	}
 
 	public void OnViveControllerTrigger(){
+		
 		if (targetObject) {
-			targetObject.gameObject.GetComponent<LayerImage> ().ToggleSelection ();
-			triggerDownObject = targetObject;
+			if (targetObject.gameObject.GetComponent<LayerImage> ()) {
+				targetObject.gameObject.GetComponent<LayerImage> ().ToggleSelection ();
+				triggerDownObject = targetObject;
+			} else if (targetObject.gameObject.GetComponent<Lever> ()) {
+				triggerDownObject = targetObject;
+			}
 		}
 	}
 
@@ -68,11 +80,18 @@ public class ControllerSelectionManager : MonoBehaviour {
 		if (!triggerDownObject)
 			return;
 
-		if (!layerManager.rearrangementMode)
-			layerManager.ToggleRearrangementMode ();
+		if (triggerDownObject.GetComponent<LayerImage> ()) {
+			if (!layerManager.rearrangementMode)
+				layerManager.ToggleRearrangementMode ();
 
-		if (triggerDownObject)
-			layerManager.MoveLayer (triggerDownObject, devicePosition);
+			if (triggerDownObject)
+				layerManager.MoveLayer (triggerDownObject, devicePosition);
+			
+		} else if (triggerDownObject.GetComponent<Lever> ()) {
+			triggerDownObject.GetComponent<Lever> ().MoveLever (devicePosition);	
+		} else {
+			return;
+		}
 	}
 
 	public void OnViveControllerTriggerRelease() {

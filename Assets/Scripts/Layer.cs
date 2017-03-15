@@ -14,6 +14,7 @@ public class Layer : MonoBehaviour {
 	private GameObject mainCanvas;
 	private GameObject shadowCanvas;
 	private GameObject mainCamera;
+	// public GameObject accordionBase;
 
 	private GameObject generationZone;
 
@@ -131,9 +132,15 @@ public class Layer : MonoBehaviour {
 	}
 
 	public Vector3 GetAccordionPosition(){
+		
+		float offsetPos = 200 * Mathf.Pow (
+			(basePosition.z - Settings.layerMoveBaseCollider.gameObject.transform.position.z) - 0.3f
+			, 7);
+		/*
 		float offsetPos = 1000 * Mathf.Pow (
 			(basePosition.z - mainCamera.transform.position.z) - 0.3f
 			, 7);
+		*/
 		Vector3 accordionPosition = gameObject.transform.position;
 		accordionPosition.z = Mathf.Clamp ((basePosition.z + offsetPos), zMin, zMax);
 		return accordionPosition;

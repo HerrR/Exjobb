@@ -60,6 +60,5 @@ public class ModeSwitcher : MonoBehaviour {
 		default:
 			break;
 		}
-
 	}
 }
