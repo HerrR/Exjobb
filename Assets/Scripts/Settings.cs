@@ -13,8 +13,11 @@ public class Settings : MonoBehaviour {
 	public BoxCollider cameraMainCollider;
 	public BoxCollider leverMovedObjectCollider;
 
-	public string navigationMode = "Spatial";
-	public string selectionMode = "Point";
+	public string _navigationMode = "Spatial";
+	public string _selectionMode = "Gaze";
+
+	public static string navigationMode;
+	public static string selectionMode;
 
 	public static BoxCollider layerMoveBaseCollider;
 	
@@ -24,22 +27,27 @@ public class Settings : MonoBehaviour {
 	}
 
 	void UpdateNavigationMode(){
-		if (navigationMode == "Lever") {
+
+		if (_navigationMode == "Lever") {
+			navigationMode = _navigationMode;
 			layerMoveBaseCollider = leverMovedObjectCollider;
-		} else if (navigationMode == "Spatial") {
+		} else if (_navigationMode == "Spatial") {
+			navigationMode = _navigationMode;
 			layerMoveBaseCollider = cameraMainCollider;
 		} else {
-			Debug.LogError ("Unknown navigation mode: "+navigationMode, gameObject);
+			Debug.LogError ("Unknown navigation mode: "+_navigationMode, gameObject);
 		}
 	}
 
 	void UpdateSelectionMode(){
-		if (selectionMode == "Point") {
+		if (_selectionMode == "Point") {
 			// TODO : Gaze/Point selection mode switch
-		} else if (selectionMode == "Gaze") {
+			selectionMode = _selectionMode;
+		} else if (_selectionMode == "Gaze") {
 			// TODO : Gaze/Point selection mode switch
+			selectionMode = _selectionMode;
 		} else {
-			Debug.LogError ("Unknown selection mode: "+selectionMode, gameObject);
+			Debug.LogError ("Unknown selection mode: "+_selectionMode, gameObject);
 		}
 	}
 }

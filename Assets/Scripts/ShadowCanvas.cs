@@ -6,10 +6,12 @@ using System;
 
 public class ShadowCanvas : MonoBehaviour {
 	Zone layerGenerationZone;
+	GameObject mainCanvas;
 
 	void Start () {
+		mainCanvas = GameObject.FindGameObjectWithTag ("MainCanvas");
 		FindGenerationZone ();
-		PositionCanvasToGenerationZone ();
+		PositionCanvasToMainCanvas ();
 	}
 
 	void FindGenerationZone() {
@@ -33,7 +35,7 @@ public class ShadowCanvas : MonoBehaviour {
 		gameObject.transform.position = newPosition;
 	}
 
-	void Update () {
-		
+	void PositionCanvasToMainCanvas(){
+		gameObject.transform.position = mainCanvas.transform.position;
 	}
 }

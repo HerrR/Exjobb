@@ -8,13 +8,14 @@ public class ControllerSelectionManager : MonoBehaviour {
 	private ushort vibrationForce = 3000;
 	public GameObject targetObject;
 	public GameObject triggerDownObject;
-	public bool arrangingLayers;
+	public static bool arrangingLayers;
 
 	void Start () {
 		controller = gameObject.transform.parent.GetComponent<ViveController> ();
 		layerManager = GameObject.FindObjectOfType<LayerManager> ();
 		arrangingLayers = false;
 	}
+
 
 	void OnTriggerEnter(Collider other) {
 		if (layerManager.rearrangementMode)
@@ -49,7 +50,7 @@ public class ControllerSelectionManager : MonoBehaviour {
 				
 			}
 		} else if (other.gameObject.GetComponent<Lever> ()) {
-			// Whatever happens when the lever is continujously hovered with controller
+			// Whatever happens when the lever is continuously hovered with controller
 		}
 	}
 
@@ -65,13 +66,17 @@ public class ControllerSelectionManager : MonoBehaviour {
 	}
 
 	public void OnViveControllerTrigger(){
-		
 		if (targetObject) {
-			if (targetObject.gameObject.GetComponent<LayerImage> ()) {
+			if (targetObject.gameObject.GetComponent<Lever> ()) {
+				triggerDownObject = targetObject;
+			} else if (targetObject.gameObject.GetComponent<LayerImage> ()) {
+				triggerDownObject = targetObject;
+
+				if (Settings.selectionMode == "Gaze")
+					return;
+				
 				targetObject.gameObject.GetComponent<LayerImage> ().ToggleSelection ();
-				triggerDownObject = targetObject;
-			} else if (targetObject.gameObject.GetComponent<Lever> ()) {
-				triggerDownObject = targetObject;
+
 			}
 		}
 	}
@@ -80,25 +85,34 @@ public class ControllerSelectionManager : MonoBehaviour {
 		if (!triggerDownObject)
 			return;
 
+		if (triggerDownObject.GetComponent<Lever> ()) {
+			triggerDownObject.GetComponent<Lever> ().MoveLever (devicePosition);
+		}
+
+		//if (Settings.selectionMode == "Gaze")
+		//	return;
+
 		if (triggerDownObject.GetComponent<LayerImage> ()) {
 			if (!layerManager.rearrangementMode)
 				layerManager.ToggleRearrangementMode ();
 
-			if (triggerDownObject)
-				layerManager.MoveLayer (triggerDownObject, devicePosition);
-			
-		} else if (triggerDownObject.GetComponent<Lever> ()) {
-			triggerDownObject.GetComponent<Lever> ().MoveLever (devicePosition);	
-		} else {
-			return;
+			if (!triggerDownObject.GetComponent<LayerImage> ().isSelected)
+				triggerDownObject.GetComponent<LayerImage> ().ToggleSelection ();
+
+			layerManager.MoveLayer (triggerDownObject, devicePosition);
 		}
 	}
 
 	public void OnViveControllerTriggerRelease() {
-		if (layerManager.rearrangementMode)
+		if (layerManager.rearrangementMode) {
 			layerManager.ToggleRearrangementMode ();
+		}
 
 		triggerDownObject = default(GameObject);
+	}
+
+	public void OnViveControllerTrackpadPress(Vector3 movementVector){
+		layerManager.MoveSelectedImagesInPlane (new Vector2 (movementVector.x * 100, movementVector.y * 100));
 	}
 
 	public void OnViveControllerGrip() {
@@ -110,6 +124,7 @@ public class ControllerSelectionManager : MonoBehaviour {
 	}
 
 	public void OnViveControllerTrackpad(Vector2 movementVector){
-		layerManager.MoveSelectedImagesInPlane (movementVector);
+		
+		// layerManager.MoveSelectedImagesInPlane (movementVector);
 	}
 }

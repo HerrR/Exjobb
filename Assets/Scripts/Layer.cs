@@ -13,13 +13,14 @@ public class Layer : MonoBehaviour {
 	private LayerManager layerManager;
 	private GameObject mainCanvas;
 	private GameObject shadowCanvas;
-	private GameObject mainCamera;
+	// private GameObject mainCamera;
 	// public GameObject accordionBase;
 
 	private GameObject generationZone;
 
 	public Vector3 basePosition;
 	public bool accordion;
+	private int accordionAmplifier = 200;
 
 	private float zMax;
 	private float zMin;
@@ -52,7 +53,7 @@ public class Layer : MonoBehaviour {
 	void Awake() {
 		mainCanvas = GameObject.FindGameObjectWithTag ("MainCanvas");
 		shadowCanvas = GameObject.FindGameObjectWithTag ("ShadowCanvas");
-		mainCamera = GameObject.FindGameObjectWithTag ("MainCamera");
+		// mainCamera = GameObject.FindGameObjectWithTag ("MainCamera");
 		generationZone = GameObject.FindGameObjectWithTag ("GenerationZone");
 		layerManager = GameObject.FindObjectOfType<LayerManager> ();
 		layerText = gameObject.GetComponentInChildren<Text> ();
@@ -133,7 +134,7 @@ public class Layer : MonoBehaviour {
 
 	public Vector3 GetAccordionPosition(){
 		
-		float offsetPos = 200 * Mathf.Pow (
+		float offsetPos = accordionAmplifier * Mathf.Pow (
 			(basePosition.z - Settings.layerMoveBaseCollider.gameObject.transform.position.z) - 0.3f
 			, 7);
 		/*
@@ -193,6 +194,7 @@ public class Layer : MonoBehaviour {
 		gameObject.transform.position = newPos;
 		neighbours = FindNeighbours ();
 		CheckForLayerSwitch ();
+		ShowHideWhenZMax ();
 	}
 
 	public void CheckForLayerSwitch(){
@@ -254,6 +256,7 @@ public class Layer : MonoBehaviour {
 		while (t <= 1.0f) {
 			t += step;
 			objectToMove.position = Vector3.Lerp (a, b, t);
+			ShowHideWhenZMax ();
 			yield return new WaitForFixedUpdate ();
 		}
 		objectToMove.position = b;

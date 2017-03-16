@@ -72,6 +72,10 @@ public class LayerManager : MonoBehaviour {
 			if (img.GetComponent<LayerImage> ().isSelected) {
 				img.GetComponent<LayerImage> ().ToggleSelection ();
 			}
+
+			if (img.GetComponent<LayerImage> ().isHovered) {
+				img.GetComponent<LayerImage> ().ToggleHovered ();
+			}
 		}
 	}
 

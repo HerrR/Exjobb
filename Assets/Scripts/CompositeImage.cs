@@ -14,6 +14,9 @@ public class CompositeImage : MonoBehaviour {
 		FindCanvasFrame ();
 		FindGenerationZone ();
 		PositionCanvasToGenerationZone ();
+		GenerateLayers (layerGenerationZone.bounds.zMin, layerGenerationZone.bounds.zMax);
+		ClearCanvas ();
+		HideFrame ();
 	}
 
 	void FindCanvasFrame() {

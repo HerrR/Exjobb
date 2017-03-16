@@ -20,7 +20,7 @@ public class ModeSwitcher : MonoBehaviour {
 		mainCanvas = GameObject.FindGameObjectWithTag ("MainCanvas");
 		generationZone = GameObject.FindGameObjectWithTag ("GenerationZone");
 	}
-
+	/*
 	void OnTriggerEnter(Collider other) {
 		if (!other.gameObject.GetComponent<Zone> ()) 
 			return;
@@ -61,4 +61,5 @@ public class ModeSwitcher : MonoBehaviour {
 			break;
 		}
 	}
+	*/
 }

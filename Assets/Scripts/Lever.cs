@@ -10,7 +10,16 @@ public class Lever : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		defaultAngle = gameObject.transform.rotation;
-		leverMove = gameObject.transform.parent.GetComponentInChildren<LeverMove> ();
+		leverMove = GameObject.FindObjectOfType<LeverMove> ();
+		// leverMove = gameObject.transform.parent.GetComponentInChildren<LeverMove> ();
+		ResetLeverToBackPosition ();
+	}
+
+	public void ResetLeverToBackPosition(){
+		Quaternion backmostPosition = Quaternion.Euler (new Vector3 (-1 * angleSpan, -180, 0));
+		transform.rotation = backmostPosition;
+		leverMove.Move (GetLeverValue ());
+		// transform.rotation = new Vector3 (-1*angleSpan, -180, 0); 
 	}
 
 	public void MoveLever(Vector3 _towardsPosition){
