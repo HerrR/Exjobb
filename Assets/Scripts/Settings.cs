@@ -5,11 +5,6 @@ using UnityEditor;
 using UnityEngine.UI;
 
 public class Settings : MonoBehaviour {
-	// public string selectionMode = "Point";
-	// public string selectionMode = "Gaze";
-
-	// public string navigationMode = "Spatial";
-	// public string navigationMode = "Lever";
 	public BoxCollider cameraMainCollider;
 	public BoxCollider leverMovedObjectCollider;
 
@@ -20,10 +15,56 @@ public class Settings : MonoBehaviour {
 	public static string selectionMode;
 
 	public static BoxCollider layerMoveBaseCollider;
+
+	public int showReferenceImgNr = 0;
+
+	public GameObject[] referenceImages;
 	
 	void Awake () {
 		UpdateNavigationMode ();
 		UpdateSelectionMode ();
+	}
+
+	void Update(){
+		CheckKeypress ();
+	}
+
+	void CheckKeypress(){
+		bool keyPressed = false;
+		int keyNum = -1;
+
+		if (Input.GetKeyDown (KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0)) {
+			keyNum = 0;
+			keyPressed = true;
+		}
+
+		if (Input.GetKeyDown (KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1)) {
+			keyNum = 1;
+			keyPressed = true;
+		}
+
+		if (Input.GetKeyDown (KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2)) {
+			keyNum = 2;
+			keyPressed = true;
+		}
+
+		if (!keyPressed) {
+			return;
+		}
+
+		if (keyNum == 0) {
+			HideAllReferenceImages ();
+		} else if (keyNum <= referenceImages.Length) {
+			HideAllReferenceImages ();
+			referenceImages [keyNum - 1].SetActive (true);
+			// Debug.Log (referenceImages [keyNum - 1], referenceImages [keyNum - 1]);
+		}
+	}
+
+	void HideAllReferenceImages(){
+		foreach (GameObject refImg in referenceImages) {
+			refImg.SetActive (false);
+		}
 	}
 
 	void UpdateNavigationMode(){
