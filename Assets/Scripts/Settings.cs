@@ -16,8 +16,6 @@ public class Settings : MonoBehaviour {
 
 	public static BoxCollider layerMoveBaseCollider;
 
-	public int showReferenceImgNr = 0;
-
 	public GameObject[] referenceImages;
 	
 	void Awake () {

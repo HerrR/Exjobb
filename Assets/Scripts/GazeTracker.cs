@@ -40,16 +40,30 @@ public class GazeTracker : MonoBehaviour {
 
 		RaycastHit[] hits;
 		hits = Physics.RaycastAll (transform.position, fwd, 500);
+
 		List<GameObject> imagesHit = new List<GameObject> ();
+// 		List<GameObject> layersHit = new List<GameObject> ();
+		bool shadowCanvasHit = false;
 
 		foreach (RaycastHit hit in hits) {
 			if (hit.collider.gameObject.tag == "Image") {
 				imagesHit.Add (hit.collider.gameObject);
 			}
+
+			if (hit.collider.gameObject.tag == "ShadowCanvas") {
+				hit.collider.gameObject.GetComponentInChildren<GazeCrosshair> ().ShowCrosshair ();
+				hit.collider.gameObject.GetComponentInChildren<GazeCrosshair> ().MoveCrosshair (hit.point);
+				shadowCanvasHit = true;		
+			}
+		}
+
+		if (!shadowCanvasHit) {
+			GameObject.FindGameObjectWithTag ("ShadowCanvas").GetComponentInChildren<GazeCrosshair> ().HideCrosshair ();
 		}
 
 		ShadowImage[] shadowImages = GameObject.FindObjectsOfType<ShadowImage> ();
 
+		// Only return closes image
 		for (int i = 0; i < shadowImages.Length; i++) {
 			foreach (GameObject img in imagesHit) {
 				if (shadowImages [i].trackedImage == img.GetComponent<Image> ()) {

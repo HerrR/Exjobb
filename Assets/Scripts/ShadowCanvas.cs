@@ -31,8 +31,4 @@ public class ShadowCanvas : MonoBehaviour {
 
 		gameObject.transform.position = newPos;
 	}
-
-	void UpdateFrontShadowCanvas(){
-		
-	}
 }
