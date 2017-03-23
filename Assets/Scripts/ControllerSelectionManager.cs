@@ -22,8 +22,14 @@ public class ControllerSelectionManager : MonoBehaviour {
 			return;
 
 		if (other.gameObject.tag == "Image") {
-			controller.Vibrate (vibrationForce);
-			targetObject = other.gameObject;
+			if (Settings.selectionMode == "Gaze") {
+				return;
+			}
+
+			if (!GameObject.Equals (other.gameObject, targetObject)) {
+				controller.Vibrate (vibrationForce);
+				targetObject = other.gameObject;
+			}
 		}
 
 		if (other.gameObject.tag == "Lever") {
@@ -50,7 +56,13 @@ public class ControllerSelectionManager : MonoBehaviour {
 				
 			}
 		} else if (other.gameObject.GetComponent<Lever> ()) {
-			// Whatever happens when the lever is continuously hovered with controller
+			if (!GameObject.Equals (targetObject, other.gameObject)) {
+				targetObject = other.gameObject;
+			}
+
+			if (!other.gameObject.GetComponent<Lever> ().IsActive ()) {
+				other.gameObject.GetComponent<Lever> ().ToggleActive ();
+			}
 		}
 	}
 
@@ -60,6 +72,12 @@ public class ControllerSelectionManager : MonoBehaviour {
 
 		if (other.gameObject.GetComponent<LayerImage> () && other.gameObject.GetComponent<LayerImage> ().isHovered)
 			other.gameObject.GetComponent<LayerImage> ().ToggleHovered ();
+		
+		if (other.gameObject.GetComponent<Lever> () 
+			&& other.gameObject.GetComponent<Lever> ().IsActive ()
+			&& !GameObject.Equals(other.gameObject, triggerDownObject)) {
+			other.gameObject.GetComponent<Lever> ().ToggleActive ();
+		}
 
 		if (other.gameObject == targetObject)
 			targetObject = null;
@@ -68,7 +86,11 @@ public class ControllerSelectionManager : MonoBehaviour {
 	public void OnViveControllerTrigger(){
 		if (targetObject) {
 			if (targetObject.gameObject.GetComponent<Lever> ()) {
+				controller.SetTriggerDownHoldTime(0.0f);
 				triggerDownObject = targetObject;
+				if (!targetObject.gameObject.GetComponent<Lever> ().IsActive ()) {
+					targetObject.gameObject.GetComponent<Lever> ().ToggleActive ();
+				}
 			} else if (targetObject.gameObject.GetComponent<LayerImage> ()) {
 				triggerDownObject = targetObject;
 
@@ -89,8 +111,8 @@ public class ControllerSelectionManager : MonoBehaviour {
 			triggerDownObject.GetComponent<Lever> ().MoveLever (devicePosition);
 		}
 
-		//if (Settings.selectionMode == "Gaze")
-		//	return;
+		if (Settings.selectionMode == "Gaze")
+			return;
 
 		if (triggerDownObject.GetComponent<LayerImage> ()) {
 			if (!layerManager.rearrangementMode)
@@ -107,7 +129,14 @@ public class ControllerSelectionManager : MonoBehaviour {
 		if (layerManager.rearrangementMode) {
 			layerManager.ToggleRearrangementMode ();
 		}
+		controller.ResetTriggerDownHoldTime ();
 
+		if (!triggerDownObject)
+			return;
+
+		if (triggerDownObject.GetComponent<Lever> ()) {
+			triggerDownObject.GetComponent<Lever> ().ToggleActive ();
+		}
 		triggerDownObject = default(GameObject);
 	}
 

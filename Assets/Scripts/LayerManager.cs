@@ -103,7 +103,7 @@ public class LayerManager : MonoBehaviour {
 				layer.DestroyShadowImage ();
 			}
 
-			layer.CreateShadowImage ();
+			layer.GenerateShadowImages ();
 		}
 	}
 }

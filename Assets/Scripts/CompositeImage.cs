@@ -6,6 +6,7 @@ using System.Linq;
 using System;
 
 public class CompositeImage : MonoBehaviour {
+	public ShadowCanvas shadowCanvas;
 	public GameObject layerPrefab;
 	public Image canvasFrame;
 	public Zone layerGenerationZone;
@@ -14,9 +15,23 @@ public class CompositeImage : MonoBehaviour {
 		FindCanvasFrame ();
 		FindGenerationZone ();
 		PositionCanvasToGenerationZone ();
+		FindShadowCanvas ();
+		shadowCanvas.PositionCanvasToMainCanvas ();
 		GenerateLayers (layerGenerationZone.bounds.zMin, layerGenerationZone.bounds.zMax);
 		ClearCanvas ();
 		HideFrame ();
+	}
+
+	void FindShadowCanvas(){
+		#pragma warning disable 0168
+		try {
+			shadowCanvas = GameObject.FindObjectOfType<ShadowCanvas>();
+		} catch (Exception e){
+			Debug.LogError ("Could not find shadowCanvas");
+			Debug.LogError (e);
+		}
+
+		#pragma warning restore 0168
 	}
 
 	void FindCanvasFrame() {

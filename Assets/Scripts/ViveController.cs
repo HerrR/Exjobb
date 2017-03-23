@@ -5,11 +5,12 @@ using UnityEngine;
 public class ViveController : MonoBehaviour {
 	private SteamVR_TrackedObject trackedObject;
 	private SteamVR_Controller.Device device;
-	private ControllerSelectionManager controllerSelectionManager;
+	public ControllerSelectionManager controllerSelectionManager;
 	private GazeSelectionManager gazeSelectionManager;
 
 	private float triggerLastPressed;
 	private float triggerDownToHoldTime;
+	private float triggerDownToHoldTimeDefault = 0.5f;
 
 	private Vector3 lastTrackpadPosition;
 
@@ -17,7 +18,7 @@ public class ViveController : MonoBehaviour {
 		trackedObject = GetComponent<SteamVR_TrackedObject> ();
 		controllerSelectionManager = gameObject.GetComponentInChildren<ControllerSelectionManager> ();
 		gazeSelectionManager = GameObject.FindObjectOfType<GazeSelectionManager> ();
-		triggerDownToHoldTime = 0.5f;
+		triggerDownToHoldTime = triggerDownToHoldTimeDefault;
 	}
 
 	void Update () {
@@ -84,5 +85,13 @@ public class ViveController : MonoBehaviour {
 
 	public void Vibrate(ushort force) {
 		device.TriggerHapticPulse (force);
+	}
+
+	public void SetTriggerDownHoldTime(float _holdTime){
+		triggerDownToHoldTime = _holdTime;
+	}
+
+	public void ResetTriggerDownHoldTime(){
+		triggerDownToHoldTime = triggerDownToHoldTimeDefault;
 	}
 }

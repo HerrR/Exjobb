@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GazeTracker : MonoBehaviour {
 	public GameObject currentTarget;
@@ -38,11 +39,22 @@ public class GazeTracker : MonoBehaviour {
 		Vector3 fwd = transform.TransformDirection(Vector3.forward);
 
 		RaycastHit[] hits;
-		hits = Physics.RaycastAll (transform.position, fwd, 100);
+		hits = Physics.RaycastAll (transform.position, fwd, 500);
+		List<GameObject> imagesHit = new List<GameObject> ();
 
 		foreach (RaycastHit hit in hits) {
 			if (hit.collider.gameObject.tag == "Image") {
-				return hit.collider.gameObject;
+				imagesHit.Add (hit.collider.gameObject);
+			}
+		}
+
+		ShadowImage[] shadowImages = GameObject.FindObjectsOfType<ShadowImage> ();
+
+		for (int i = 0; i < shadowImages.Length; i++) {
+			foreach (GameObject img in imagesHit) {
+				if (shadowImages [i].trackedImage == img.GetComponent<Image> ()) {
+					return img;
+				}
 			}
 		}
 

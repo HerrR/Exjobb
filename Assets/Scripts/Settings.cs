@@ -21,7 +21,7 @@ public class Settings : MonoBehaviour {
 
 	public static BoxCollider layerMoveBaseCollider;
 	
-	void Start () {
+	void Awake () {
 		UpdateNavigationMode ();
 		UpdateSelectionMode ();
 	}

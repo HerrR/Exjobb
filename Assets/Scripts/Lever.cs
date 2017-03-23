@@ -7,12 +7,31 @@ public class Lever : MonoBehaviour {
 	private float angleSpan = 45f;
 	private LeverMove leverMove;
 
+	public Material defaultMaterial;
+	public Material activeMaterial;
+
+	private bool isActive = false;
+	private Renderer rend;
+
 	// Use this for initialization
 	void Start () {
 		defaultAngle = gameObject.transform.rotation;
 		leverMove = GameObject.FindObjectOfType<LeverMove> ();
+		rend = GetComponent<Renderer> ();
 		// leverMove = gameObject.transform.parent.GetComponentInChildren<LeverMove> ();
 		ResetLeverToBackPosition ();
+		if (Settings.navigationMode != "Lever") {
+			Debug.Log (Settings.navigationMode);
+			DestroyLever ();	
+		}
+	}
+
+	void Update(){
+		AdaptMaterial ();
+	}
+
+	public void DestroyLever(){
+		Destroy (gameObject.transform.parent.gameObject);
 	}
 
 	public void ResetLeverToBackPosition(){
@@ -48,5 +67,21 @@ public class Lever : MonoBehaviour {
 		return leverValue;
 	}
 
+	public bool IsActive(){
+		return isActive;
+	}
 
+	public void ToggleActive(){
+		isActive = !isActive;
+	}
+
+	void AdaptMaterial(){
+		if (isActive && (rend.material != activeMaterial)) {
+			rend.material = activeMaterial;
+		}
+
+		if (!isActive && (rend.material != defaultMaterial)) {
+			rend.material = defaultMaterial;
+		}
+	}
 }

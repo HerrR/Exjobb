@@ -13,8 +13,7 @@ public class Layer : MonoBehaviour {
 	private LayerManager layerManager;
 	private GameObject mainCanvas;
 	private GameObject shadowCanvas;
-	// private GameObject mainCamera;
-	// public GameObject accordionBase;
+	private GameObject frontShadowCanvas;
 
 	private GameObject generationZone;
 
@@ -53,6 +52,7 @@ public class Layer : MonoBehaviour {
 	void Awake() {
 		mainCanvas = GameObject.FindGameObjectWithTag ("MainCanvas");
 		shadowCanvas = GameObject.FindGameObjectWithTag ("ShadowCanvas");
+		// frontShadowCanvas = GameObject.FindGameObjectWithTag ("FrontShadowCanvas");
 		// mainCamera = GameObject.FindGameObjectWithTag ("MainCamera");
 		generationZone = GameObject.FindGameObjectWithTag ("GenerationZone");
 		layerManager = GameObject.FindObjectOfType<LayerManager> ();
@@ -66,7 +66,12 @@ public class Layer : MonoBehaviour {
 		accordionToggleInProcess = false;
 		moveFromToRunning = false;
 		FindLayerImage ();
-		CreateShadowImage ();
+		GenerateShadowImages ();
+	}
+
+	public void GenerateShadowImages(){
+		CreateShadowImage (shadowCanvas, layerImage);
+		// CreateShadowImage (frontShadowCanvas, layerImage);
 	}
 
 	void Update(){
@@ -147,11 +152,11 @@ public class Layer : MonoBehaviour {
 		return accordionPosition;
 	}
 
-	public void CreateShadowImage(){
+	public void CreateShadowImage(GameObject _targetCanvas, Image _trackedImage){
 		Vector3 pos = new Vector3 (
 			layerImage.gameObject.transform.position.x,
 			layerImage.gameObject.transform.position.y,
-			shadowCanvas.transform.position.z);
+			_targetCanvas.transform.position.z);
 
 		shadowImage = GameObject.Instantiate (
 			layerImage, 
@@ -162,7 +167,7 @@ public class Layer : MonoBehaviour {
 		Destroy (shadowImage.GetComponent<LayerImage> ());
 		Destroy (shadowImage.GetComponent<ImageSwitcher> ());
 		shadowImage.gameObject.AddComponent<ShadowImage> ();
-		shadowImage.GetComponent<ShadowImage> ().SetTrackedImage (layerImage);
+		shadowImage.GetComponent<ShadowImage> ().SetTrackedImage (_trackedImage);
 
 		shadowImage.name = gameObject.name + " shadow image";
 		shadowImage.tag = "ShadowImage";

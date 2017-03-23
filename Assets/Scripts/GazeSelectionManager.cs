@@ -3,20 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class GazeSelectionManager : MonoBehaviour {
-	private ViveController[] controllers;
+	public ViveController[] controllers;
 	private LayerManager layerManager;
 	private GazeTracker gazeTracker;
+	public GameObject triggerDownObject;
 
 	// Use this for initialization
 	void Start () {
-		controllers = GameObject.FindObjectsOfType<ViveController> ();	
 		layerManager = GameObject.FindObjectOfType<LayerManager> ();
 		gazeTracker = gameObject.GetComponent<GazeTracker> ();
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
+
+	void FindControllers(){
+		controllers = GameObject.FindObjectsOfType<ViveController> ();	
 	}
 
 	public void OnViveControllerTrigger(){
@@ -26,16 +25,44 @@ public class GazeSelectionManager : MonoBehaviour {
 		if (gazeTracker.HasTarget ()) {
 			if (gazeTracker.currentTarget.GetComponent<LayerImage> ()) {
 				gazeTracker.currentTarget.GetComponent<LayerImage> ().ToggleSelection ();
-				// TODO: Trigger down object, here or in gaze tracker? Probably here.
+				triggerDownObject = gazeTracker.currentTarget;
 			}
 		}
 	}
 
 	public void OnViveControllerTriggerHold(Vector3 devicePosition){
-		// Debug.Log ("Vive controller trigger hold called in gaze selection manager");
+		if (Settings.selectionMode != "Gaze")
+			return;
+
+		if (!triggerDownObject)
+			return;
+
+		FindControllers ();
+
+		foreach (ViveController controller in controllers) {
+			if (controller.controllerSelectionManager.triggerDownObject) {
+				if (controller.controllerSelectionManager.triggerDownObject.GetComponent<Lever> ()) {
+					return;
+				}
+			}
+		}
+		
+		if (triggerDownObject.GetComponent<LayerImage> ()) {
+			if (!layerManager.rearrangementMode)
+				layerManager.ToggleRearrangementMode ();
+
+			if (!triggerDownObject.GetComponent<LayerImage> ().isSelected)
+				triggerDownObject.GetComponent<LayerImage> ().ToggleSelection ();
+
+			layerManager.MoveLayer (triggerDownObject, devicePosition);
+		}
 	}
 
 	public void OnViveControllerTriggerRelease(){
+		if (Settings.selectionMode != "Gaze")
+			return;
+		
+		triggerDownObject = default(GameObject);
 		// Debug.Log ("Vive controller trigger release called in gaze selection manager");
 	}
 
