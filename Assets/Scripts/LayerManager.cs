@@ -99,8 +99,8 @@ public class LayerManager : MonoBehaviour {
 		allLayers.Reverse ();
 
 		foreach (Layer layer in allLayers) {
-			if (layer.HasShadowImage ()) {
-				layer.DestroyShadowImage ();
+			if (layer.HasShadowImages ()) {
+				layer.DestroyShadowImages ();
 			}
 
 			layer.GenerateShadowImages ();

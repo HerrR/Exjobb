@@ -12,8 +12,8 @@ public class Layer : MonoBehaviour {
 
 	private LayerManager layerManager;
 	private GameObject mainCanvas;
-	private GameObject shadowCanvas;
-	private GameObject frontShadowCanvas;
+	private GameObject shadowCanvasBack;
+	private GameObject shadowCanvasFront;
 
 	private GameObject generationZone;
 
@@ -24,8 +24,12 @@ public class Layer : MonoBehaviour {
 	private float zMax;
 	private float zMin;
 
+	public bool atMaxPosition = false;
+	public bool atMinPosition = false;
+
 	public Image layerImage;
-	public Image shadowImage;
+	public Image shadowImageFront;
+	public Image shadowImageBack;
 
 	private Text layerText;
 
@@ -51,9 +55,9 @@ public class Layer : MonoBehaviour {
 
 	void Awake() {
 		mainCanvas = GameObject.FindGameObjectWithTag ("MainCanvas");
-		shadowCanvas = GameObject.FindGameObjectWithTag ("ShadowCanvas");
-		// frontShadowCanvas = GameObject.FindGameObjectWithTag ("FrontShadowCanvas");
-		// mainCamera = GameObject.FindGameObjectWithTag ("MainCamera");
+		shadowCanvasBack = GameObject.FindGameObjectWithTag ("ShadowCanvas");
+		shadowCanvasFront = GameObject.FindGameObjectWithTag ("ShadowCanvasFront");
+
 		generationZone = GameObject.FindGameObjectWithTag ("GenerationZone");
 		layerManager = GameObject.FindObjectOfType<LayerManager> ();
 		layerText = gameObject.GetComponentInChildren<Text> ();
@@ -70,14 +74,14 @@ public class Layer : MonoBehaviour {
 	}
 
 	public void GenerateShadowImages(){
-		CreateShadowImage (shadowCanvas, layerImage);
-		// CreateShadowImage (frontShadowCanvas, layerImage);
+		shadowImageBack = CreateShadowImage (shadowCanvasBack, layerImage);
+		shadowImageFront = CreateShadowImage (shadowCanvasFront, layerImage);
 	}
 
 	void Update(){
 		if (accordion) {
 			AccordionMove ();
-			ShowHideWhenZMax ();
+			ShowHideWhenZMaxOrMin ();
 		}
 	}
 
@@ -138,57 +142,61 @@ public class Layer : MonoBehaviour {
 	}
 
 	public Vector3 GetAccordionPosition(){
-		
 		float offsetPos = accordionAmplifier * Mathf.Pow (
 			(basePosition.z - Settings.layerMoveBaseCollider.gameObject.transform.position.z) - 0.3f
 			, 7);
-		/*
-		float offsetPos = 1000 * Mathf.Pow (
-			(basePosition.z - mainCamera.transform.position.z) - 0.3f
-			, 7);
-		*/
 		Vector3 accordionPosition = gameObject.transform.position;
 		accordionPosition.z = Mathf.Clamp ((basePosition.z + offsetPos), zMin, zMax);
 		return accordionPosition;
 	}
 
-	public void CreateShadowImage(GameObject _targetCanvas, Image _trackedImage){
+	public Image CreateShadowImage(GameObject _targetCanvas, Image _trackedImage){
 		Vector3 pos = new Vector3 (
 			layerImage.gameObject.transform.position.x,
 			layerImage.gameObject.transform.position.y,
 			_targetCanvas.transform.position.z);
 
-		shadowImage = GameObject.Instantiate (
+		Image shadowImg = GameObject.Instantiate (
 			layerImage, 
 			pos,
-			shadowCanvas.transform.rotation,
-			shadowCanvas.transform);
+			_targetCanvas.transform.rotation,
+			_targetCanvas.transform);
 
-		Destroy (shadowImage.GetComponent<LayerImage> ());
-		Destroy (shadowImage.GetComponent<ImageSwitcher> ());
-		shadowImage.gameObject.AddComponent<ShadowImage> ();
-		shadowImage.GetComponent<ShadowImage> ().SetTrackedImage (_trackedImage);
+		Destroy (shadowImg.GetComponent<LayerImage> ());
+		Destroy (shadowImg.GetComponent<ImageSwitcher> ());
+		shadowImg.gameObject.AddComponent<ShadowImage> ();
+		shadowImg.GetComponent<ShadowImage> ().SetTrackedImage (_trackedImage);
 
-		shadowImage.name = gameObject.name + " shadow image";
-		shadowImage.tag = "ShadowImage";
+		shadowImg.name = gameObject.name + " shadow image";
+		shadowImg.tag = "ShadowImage";
+
+		return shadowImg;
 	}
 
-	void ShowHideWhenZMax(){
+	void ShowHideWhenZMaxOrMin(){
 		if (gameObject.transform.position.z == zMax) {
 			layerImage.enabled = false;
 			HideLayerText ();
+			atMaxPosition = true;
+		} else if (gameObject.transform.position.z == zMin) {
+			layerImage.enabled = false;
+			HideLayerText ();
+			atMinPosition = true;
 		} else {
 			layerImage.enabled = true;
 			ShowLayerText ();
+			atMaxPosition = false;
+			atMinPosition = false;
 		}
 	}
 
-	public void DestroyShadowImage(){
-		Destroy (shadowImage.gameObject);
+	public void DestroyShadowImages(){
+		Destroy (shadowImageBack.gameObject);
+		Destroy (shadowImageFront.gameObject);
 	}
 
-	public bool HasShadowImage(){
-		return shadowImage != default(Image);
+	public bool HasShadowImages(){
+		return ((shadowImageFront != default(Image)) || (shadowImageBack != default(Image)));
 	}
 
 	public void MoveZ(float _zCoord){
@@ -199,7 +207,7 @@ public class Layer : MonoBehaviour {
 		gameObject.transform.position = newPos;
 		neighbours = FindNeighbours ();
 		CheckForLayerSwitch ();
-		ShowHideWhenZMax ();
+		ShowHideWhenZMaxOrMin ();
 	}
 
 	public void CheckForLayerSwitch(){
@@ -261,7 +269,7 @@ public class Layer : MonoBehaviour {
 		while (t <= 1.0f) {
 			t += step;
 			objectToMove.position = Vector3.Lerp (a, b, t);
-			ShowHideWhenZMax ();
+			ShowHideWhenZMaxOrMin ();
 			yield return new WaitForFixedUpdate ();
 		}
 		objectToMove.position = b;

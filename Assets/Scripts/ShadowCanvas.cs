@@ -6,9 +6,11 @@ using System;
 
 public class ShadowCanvas : MonoBehaviour {
 	GameObject mainCanvas;
+	GameObject shadowCanvasFront;
+	Zone generationZone;
 
 	void Awake(){
-		// CreateFrontShadowCanvas ();
+		generationZone = GameObject.FindGameObjectWithTag ("GenerationZone").GetComponent<Zone> ();
 	}
 
 	public void PositionCanvasToMainCanvas(){
@@ -16,18 +18,18 @@ public class ShadowCanvas : MonoBehaviour {
 		gameObject.transform.position = mainCanvas.transform.position;
 	}
 
-	void CreateFrontShadowCanvas(){
-		GameObject newShadowCanvas = GameObject.Instantiate (
-			gameObject,
-			transform.position,
-			transform.rotation,
-			transform.parent
-		);
+	public void AdjustToGenerationZone(){
+		Vector3 newPos = gameObject.transform.position;
 
-		Destroy (newShadowCanvas.GetComponent<ShadowCanvas> ());
-		newShadowCanvas.AddComponent<FrontShadowCanvas> ();
-		newShadowCanvas.name = "Front ShadowCanvas";
-		newShadowCanvas.tag = "ShadowCanvasFront";
+		if(gameObject.CompareTag("ShadowCanvas")){
+			newPos.z = generationZone.bounds.zMax;	
+		}
+
+		if (gameObject.CompareTag ("ShadowCanvasFront")) {
+			newPos.z = generationZone.bounds.zMin;
+		}
+
+		gameObject.transform.position = newPos;
 	}
 
 	void UpdateFrontShadowCanvas(){

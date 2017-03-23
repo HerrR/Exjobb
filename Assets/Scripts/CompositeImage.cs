@@ -6,7 +6,7 @@ using System.Linq;
 using System;
 
 public class CompositeImage : MonoBehaviour {
-	public ShadowCanvas shadowCanvas;
+	public ShadowCanvas[] shadowCanvases;
 	public GameObject layerPrefab;
 	public Image canvasFrame;
 	public Zone layerGenerationZone;
@@ -15,22 +15,26 @@ public class CompositeImage : MonoBehaviour {
 		FindCanvasFrame ();
 		FindGenerationZone ();
 		PositionCanvasToGenerationZone ();
-		FindShadowCanvas ();
-		shadowCanvas.PositionCanvasToMainCanvas ();
+
+		FindShadowCanvases ();
+		foreach (ShadowCanvas sc in shadowCanvases) {
+			sc.PositionCanvasToMainCanvas ();
+			sc.AdjustToGenerationZone();
+		}
+
 		GenerateLayers (layerGenerationZone.bounds.zMin, layerGenerationZone.bounds.zMax);
 		ClearCanvas ();
 		HideFrame ();
 	}
 
-	void FindShadowCanvas(){
+	void FindShadowCanvases(){
 		#pragma warning disable 0168
 		try {
-			shadowCanvas = GameObject.FindObjectOfType<ShadowCanvas>();
+			shadowCanvases = GameObject.FindObjectsOfType<ShadowCanvas>();
 		} catch (Exception e){
 			Debug.LogError ("Could not find shadowCanvas");
 			Debug.LogError (e);
 		}
-
 		#pragma warning restore 0168
 	}
 
@@ -105,7 +109,7 @@ public class CompositeImage : MonoBehaviour {
 			newLayer.GetComponentInChildren<Text> ().text = "Layer " + layersGenerated;
 			newLayer.GetComponent<Layer> ().basePosition = spawnPosition;
 
-			Image newLayerImage = Instantiate (
+			Instantiate (
 				layerImage,
 				new Vector3(layerImage.transform.position.x, layerImage.transform.position.y, newLayer.transform.position.z),
 				spawnRotation,

@@ -13,26 +13,6 @@ public class ShadowImage : MonoBehaviour {
 		shadowImage.enabled = false;
 		RemoveBoxColliders ();
 	}
-	
-/*	public void CreateBackImage(){
-		GameObject frontShadowCanvas = GameObject.FindGameObjectWithTag ("ShadowCanvasFront");
-		Vector3 pos = new Vector3 (
-			shadowImage.gameObject.transform.position.x,
-			shadowImage.gameObject.transform.position.y,
-			frontShadowCanvas .transform.position.z
-		);
-
-		shadowImage = GameObject.Instantiate (
-			shadowImage,
-			pos,
-			frontShadowCanvas.transform.rotation,
-			frontShadowCanvas.transform
-		);
-
-		Destroy (shadowImage.GetComponent<LayerImage> ());
-		Destroy (shadowImage.GetComponent<ImageSwitcher> ());
-
-	}*/
 
 	// Update is called once per frame
 	void Update () {
@@ -50,7 +30,11 @@ public class ShadowImage : MonoBehaviour {
 	}
 
 	void ShowHideShadow(){
-		shadowImage.enabled = !trackedImage.enabled;
+		if (trackedImage.transform.position == shadowImage.transform.position) {
+			shadowImage.enabled = true;
+		} else {
+			shadowImage.enabled = false;
+		}
 	}
 
 
