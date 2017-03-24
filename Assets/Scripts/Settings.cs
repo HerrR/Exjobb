@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.UI;
+using System;
+using System.IO;
 
 public class Settings : MonoBehaviour {
 	public BoxCollider cameraMainCollider;
@@ -17,17 +19,106 @@ public class Settings : MonoBehaviour {
 	public static BoxCollider layerMoveBaseCollider;
 
 	public GameObject[] referenceImages;
+
+	public float taskStartTime;
+
+	string fileName = "UserTestLog.txt";
 	
 	void Awake () {
 		UpdateNavigationMode ();
 		UpdateSelectionMode ();
 	}
 
-	void Update(){
-		CheckKeypress ();
+	void Start(){
 	}
 
-	void CheckKeypress(){
+
+	void Update(){
+		CheckReferenceImgageKeypress ();
+		CheckLogKeypress ();
+	}
+
+	void WriteToLog(string[] _inputLines){
+		using (FileStream aFile = new FileStream(fileName, FileMode.Append, FileAccess.Write))
+		using (StreamWriter sw = new StreamWriter(aFile)) {
+			foreach (string _line in _inputLines) {
+				Debug.Log (_line);
+				sw.WriteLine (_line);
+			}
+		}
+	}
+
+	void LogNewParticipant(){
+		string[] introMessage = {
+			"------------------------------------------------------",
+			"New Participant",
+			"Session started " + DateTime.Now.ToString ("yyyy-MM-dd HH:mm:ss"),
+			"Selection mode: " + selectionMode,
+			"Navigation mode: " + navigationMode,
+			"------------------------------------------------------"
+		};
+		WriteToLog(introMessage);
+	}
+
+	void StartTask(){
+		taskStartTime = Time.time;
+		string[] msg = {
+			"###",
+			"Task started: " + taskStartTime,
+			"Reference image: " + ReferenceImageBeingShown()
+		};
+		WriteToLog (msg);
+	}
+
+	void FinishTask(){
+		string[] msg = {
+			"Task finished: " + (Time.time),
+			"Time to complete: " + (Time.time - taskStartTime),
+			"###"
+		};
+		WriteToLog (msg);
+		taskStartTime = default(float);
+	}
+
+	void LogSessionComplete(){
+		string[] msg = {
+			"###",
+			"Session finished " + DateTime.Now.ToString ("yyyy-MM-dd HH:mm:ss"),
+			"###"
+		};
+
+		WriteToLog (msg);
+	}
+
+	void CheckLogKeypress(){
+		if (Input.GetKeyDown (KeyCode.N)) {
+			LogNewParticipant ();
+		}
+
+		if (Input.GetKeyDown (KeyCode.S)) {
+			StartTask ();
+		}
+
+		if (Input.GetKeyDown (KeyCode.F)) {
+			FinishTask ();
+		}
+
+		if (Input.GetKeyDown (KeyCode.X)) {
+			LogSessionComplete ();
+		}
+	}
+
+	string ReferenceImageBeingShown(){
+		for (int i = 0; i < referenceImages.Length; i++) {
+			if (referenceImages [i].activeSelf) {
+				return referenceImages [i].name;
+			}
+		}
+
+		return "None";
+	}
+
+	void CheckReferenceImgageKeypress(){
 		bool keyPressed = false;
 		int keyNum = -1;
 
@@ -55,7 +146,6 @@ public class Settings : MonoBehaviour {
 		} else if (keyNum <= referenceImages.Length) {
 			HideAllReferenceImages ();
 			referenceImages [keyNum - 1].SetActive (true);
-			// Debug.Log (referenceImages [keyNum - 1], referenceImages [keyNum - 1]);
 		}
 	}
 
