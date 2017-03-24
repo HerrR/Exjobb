@@ -21,7 +21,6 @@ public class Lever : MonoBehaviour {
 		// leverMove = gameObject.transform.parent.GetComponentInChildren<LeverMove> ();
 		ResetLeverToBackPosition ();
 		if (Settings.navigationMode != "Lever") {
-			Debug.Log (Settings.navigationMode);
 			DestroyLever ();	
 		}
 	}

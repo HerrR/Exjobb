@@ -8,12 +8,10 @@ public class LayerImage : MonoBehaviour {
 	public bool isHovered;
 	private float movementSpeed = 1500f;
 	private GameObject mainCanvas;
-	private GameObject mainCamera;
 	private RectTransform rectTransform;
 
 	void Awake() {
 		mainCanvas = GameObject.FindGameObjectWithTag ("MainCanvas");
-		mainCamera= GameObject.FindGameObjectWithTag ("MainCamera");
 	}
 
 	void Start() {

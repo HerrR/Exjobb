@@ -22,7 +22,8 @@ public class Settings : MonoBehaviour {
 
 	public float taskStartTime;
 
-	string fileName = "UserTestLog.txt";
+	public string fileName = "UserTestLog.txt";
+	public Logger logger;
 	
 	void Awake () {
 		UpdateNavigationMode ();
@@ -30,22 +31,14 @@ public class Settings : MonoBehaviour {
 	}
 
 	void Start(){
+		logger = GameObject.FindObjectOfType<Logger> ();
+		logger.SetFileName (fileName);
 	}
 
 
 	void Update(){
 		CheckReferenceImgageKeypress ();
 		CheckLogKeypress ();
-	}
-
-	void WriteToLog(string[] _inputLines){
-		using (FileStream aFile = new FileStream(fileName, FileMode.Append, FileAccess.Write))
-		using (StreamWriter sw = new StreamWriter(aFile)) {
-			foreach (string _line in _inputLines) {
-				Debug.Log (_line);
-				sw.WriteLine (_line);
-			}
-		}
 	}
 
 	void LogNewParticipant(){
@@ -57,7 +50,7 @@ public class Settings : MonoBehaviour {
 			"Navigation mode: " + navigationMode,
 			"------------------------------------------------------"
 		};
-		WriteToLog(introMessage);
+		Logger.WriteToLog(introMessage);
 	}
 
 	void StartTask(){
@@ -67,7 +60,8 @@ public class Settings : MonoBehaviour {
 			"Task started: " + taskStartTime,
 			"Reference image: " + ReferenceImageBeingShown()
 		};
-		WriteToLog (msg);
+		Logger.WriteToLog (msg);
+		// WriteToLog (msg);
 	}
 
 	void FinishTask(){
@@ -76,7 +70,7 @@ public class Settings : MonoBehaviour {
 			"Time to complete: " + (Time.time - taskStartTime),
 			"###"
 		};
-		WriteToLog (msg);
+		Logger.WriteToLog (msg);
 		taskStartTime = default(float);
 	}
 
@@ -87,7 +81,7 @@ public class Settings : MonoBehaviour {
 			"###"
 		};
 
-		WriteToLog (msg);
+		Logger.WriteToLog (msg);
 	}
 
 	void CheckLogKeypress(){

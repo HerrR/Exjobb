@@ -7,6 +7,7 @@ public class GazeSelectionManager : MonoBehaviour {
 	private LayerManager layerManager;
 	private GazeTracker gazeTracker;
 	public GameObject triggerDownObject;
+	private bool triggerContinuousPressLogged = false;
 
 	// Use this for initialization
 	void Start () {
@@ -18,15 +19,36 @@ public class GazeSelectionManager : MonoBehaviour {
 		controllers = GameObject.FindObjectsOfType<ViveController> ();	
 	}
 
+	void LogTriggerHold(string _target){
+		string[] msg = {
+			"$TriggerHold \t-\t "+ _target +" \t-\t " + Logger.GenerateTimestamp()
+		};
+		Logger.WriteToLog (msg);
+		triggerContinuousPressLogged = true;
+	}
+
 	public void OnViveControllerTrigger(){
+		triggerContinuousPressLogged = false;
 		if (Settings.selectionMode != "Gaze")
 			return;
-		
+
+
 		if (gazeTracker.HasTarget ()) {
 			if (gazeTracker.currentTarget.GetComponent<LayerImage> ()) {
 				gazeTracker.currentTarget.GetComponent<LayerImage> ().ToggleSelection ();
 				triggerDownObject = gazeTracker.currentTarget;
+				string[] msg = {
+					"$Trigger \t-\t LayerImage \t-\t " + Logger.GenerateTimestamp()	
+				};
+
+				Logger.WriteToLog (msg);
 			}
+		} else {
+			string[] msg = {
+				"$Trigger \t-\t No target \t-\t " + Logger.GenerateTimestamp()	
+			};
+
+			Logger.WriteToLog (msg);
 		}
 	}
 
@@ -34,11 +56,14 @@ public class GazeSelectionManager : MonoBehaviour {
 		if (Settings.selectionMode != "Gaze")
 			return;
 
-		if (!triggerDownObject)
+		if (!triggerDownObject) {
+			if (!triggerContinuousPressLogged) {
+				LogTriggerHold ("No target");
+			}
 			return;
+		}
 
 		FindControllers ();
-
 		foreach (ViveController controller in controllers) {
 			if (controller.controllerSelectionManager.triggerDownObject) {
 				if (controller.controllerSelectionManager.triggerDownObject.GetComponent<Lever> ()) {
@@ -53,6 +78,10 @@ public class GazeSelectionManager : MonoBehaviour {
 
 			if (!triggerDownObject.GetComponent<LayerImage> ().isSelected)
 				triggerDownObject.GetComponent<LayerImage> ().ToggleSelection ();
+
+			if (!triggerContinuousPressLogged) {
+				LogTriggerHold ("LayerImage");
+			}
 
 			layerManager.MoveLayer (triggerDownObject, devicePosition);
 		}

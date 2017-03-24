@@ -10,6 +10,8 @@ public class ControllerSelectionManager : MonoBehaviour {
 	public GameObject triggerDownObject;
 	public static bool arrangingLayers;
 
+	private bool triggerContinuousPressLogged = false;
+
 	void Start () {
 		controller = gameObject.transform.parent.GetComponent<ViveController> ();
 		layerManager = GameObject.FindObjectOfType<LayerManager> ();
@@ -84,13 +86,21 @@ public class ControllerSelectionManager : MonoBehaviour {
 	}
 
 	public void OnViveControllerTrigger(){
+		triggerContinuousPressLogged = false;
+		
 		if (targetObject) {
 			if (targetObject.gameObject.GetComponent<Lever> ()) {
-				controller.SetTriggerDownHoldTime(0.0f);
+				controller.SetTriggerDownHoldTime (0.0f);
 				triggerDownObject = targetObject;
 				if (!targetObject.gameObject.GetComponent<Lever> ().IsActive ()) {
 					targetObject.gameObject.GetComponent<Lever> ().ToggleActive ();
 				}
+				string[] msg = {
+					"$Trigger \t-\t Lever \t-\t " + Logger.GenerateTimestamp()	
+				};
+
+				Logger.WriteToLog (msg);
+
 			} else if (targetObject.gameObject.GetComponent<LayerImage> ()) {
 				triggerDownObject = targetObject;
 
@@ -98,16 +108,46 @@ public class ControllerSelectionManager : MonoBehaviour {
 					return;
 				
 				targetObject.gameObject.GetComponent<LayerImage> ().ToggleSelection ();
+				string[] msg = {
+					"$Trigger \t-\t LayerImage \t-\t " + Logger.GenerateTimestamp()	
+				};
 
+				Logger.WriteToLog (msg);
+			}
+		} else {
+			if (Settings.selectionMode == "Point") {
+				string[] msg = {
+					"$Trigger \t-\t No target \t-\t " + Logger.GenerateTimestamp()
+				};
+				Logger.WriteToLog (msg);
 			}
 		}
+
+	}
+
+	void LogTriggerHold(string _target){
+		string[] msg = {
+			"$TriggerHold \t-\t "+ _target +" \t-\t " + Logger.GenerateTimestamp()
+		};
+		Logger.WriteToLog (msg);
+		triggerContinuousPressLogged = true;
 	}
 
 	public void OnViveControllerTriggerHold(Vector3 devicePosition) {
-		if (!triggerDownObject)
+		if (!triggerDownObject) {
+			if (Settings.selectionMode == "Point") {
+				if(!triggerContinuousPressLogged){
+					LogTriggerHold ("No target");
+				}
+			}
 			return;
+		}
 
 		if (triggerDownObject.GetComponent<Lever> ()) {
+			if (!triggerContinuousPressLogged) {
+				LogTriggerHold ("Lever");
+			}
+
 			triggerDownObject.GetComponent<Lever> ().MoveLever (devicePosition);
 		}
 
@@ -122,6 +162,10 @@ public class ControllerSelectionManager : MonoBehaviour {
 				triggerDownObject.GetComponent<LayerImage> ().ToggleSelection ();
 
 			layerManager.MoveLayer (triggerDownObject, devicePosition);
+
+			if (!triggerContinuousPressLogged) {
+				LogTriggerHold ("LayerImage");
+			}
 		}
 	}
 
@@ -145,10 +189,20 @@ public class ControllerSelectionManager : MonoBehaviour {
 	}
 
 	public void OnViveControllerGrip() {
-		layerManager.DeselectAll ();	
+		string[] msg = {
+			"$Grip \t-\t DeselectAll \t-\t " + Logger.GenerateTimestamp()	
+		};
+		Logger.WriteToLog (msg);
+
+		layerManager.DeselectAll ();
 	}
 
 	public void OnViveControllerApplicationMenu() {
+		string[] msg = {
+			"$ApplicationMenu \t-\t DeselectAll \t-\t"	+ Logger.GenerateTimestamp()
+		};
+		Logger.WriteToLog(msg);
+
 		layerManager.DeselectAll ();
 	}
 

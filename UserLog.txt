@@ -1,0 +1,36 @@
+$ApplicationMenu 	-	 DeselectAll 	-	2017-03-24 16:58:57
+$Trigger 	-	 LayerImage 	-	 2017-03-24 16:59:47
+$TriggerHold 	-	 LayerImage 	-	 2017-03-24 16:59:47
+$Trigger 	-	 LayerImage 	-	 2017-03-24 16:59:49
+$TriggerHold 	-	 LayerImage 	-	 2017-03-24 16:59:50
+$Trigger 	-	 LayerImage 	-	 2017-03-24 17:00:09
+$TriggerHold 	-	 LayerImage 	-	 2017-03-24 17:00:10
+$Grip 	-	 DeselectAll 	-	 2017-03-24 17:00:16
+------------------------------------------------------
+New Participant
+Session started 2017-03-24 17:00:28
+Selection mode: Gaze
+Navigation mode: Lever
+------------------------------------------------------
+###
+Task started: 47.83852
+Reference image: Reference Image 1
+$Trigger 	-	 LayerImage 	-	 2017-03-24 17:00:30
+$TriggerHold 	-	 LayerImage 	-	 2017-03-24 17:00:31
+$Trigger 	-	 LayerImage 	-	 2017-03-24 17:00:33
+$Grip 	-	 DeselectAll 	-	 2017-03-24 17:00:36
+$Grip 	-	 DeselectAll 	-	 2017-03-24 17:00:36
+$Trigger 	-	 No target 	-	 2017-03-24 17:00:37
+$Trigger 	-	 LayerImage 	-	 2017-03-24 17:00:40
+$TriggerHold 	-	 LayerImage 	-	 2017-03-24 17:00:40
+$Trigger 	-	 No target 	-	 2017-03-24 17:00:48
+$Trigger 	-	 Lever 	-	 2017-03-24 17:01:09
+$Trigger 	-	 No target 	-	 2017-03-24 17:01:09
+$TriggerHold 	-	 Lever 	-	 2017-03-24 17:01:09
+$TriggerHold 	-	 No target 	-	 2017-03-24 17:01:09
+$Trigger 	-	 LayerImage 	-	 2017-03-24 17:01:14
+$TriggerHold 	-	 LayerImage 	-	 2017-03-24 17:01:14
+$Trigger 	-	 Lever 	-	 2017-03-24 17:01:18
+$Trigger 	-	 No target 	-	 2017-03-24 17:01:18
+$TriggerHold 	-	 Lever 	-	 2017-03-24 17:01:18
+$TriggerHold 	-	 No target 	-	 2017-03-24 17:01:18
