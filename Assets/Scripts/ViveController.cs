@@ -5,19 +5,23 @@ using UnityEngine;
 public class ViveController : MonoBehaviour {
 	private SteamVR_TrackedObject trackedObject;
 	private SteamVR_Controller.Device device;
-	public ControllerSelectionManager controllerSelectionManager;
-	private GazeSelectionManager gazeSelectionManager;
+	private ControllerSelectionManager controllerSelectionManager;
+	private Pointer pointer;
+	// private GazeSelectionManager gazeSelectionManager;
 
 	private float triggerLastPressed;
 	private float triggerDownToHoldTime;
 	private float triggerDownToHoldTimeDefault = 0.5f;
 
-	private Vector3 lastTrackpadPosition;
+	// private Vector3 lastTrackpadPosition;
+	public bool triggerHold;
+	public bool gripDown;
 
 	void Start () {
 		trackedObject = GetComponent<SteamVR_TrackedObject> ();
 		controllerSelectionManager = gameObject.GetComponentInChildren<ControllerSelectionManager> ();
-		gazeSelectionManager = GameObject.FindObjectOfType<GazeSelectionManager> ();
+		pointer = gameObject.GetComponent<Pointer> ();
+		// gazeSelectionManager = GameObject.FindObjectOfType<GazeSelectionManager> ();
 		triggerDownToHoldTime = triggerDownToHoldTimeDefault;
 	}
 
@@ -26,60 +30,85 @@ public class ViveController : MonoBehaviour {
 
 		// Trackpad
 		if (device.GetAxis ().x != 0 || device.GetAxis ().y != 0) {
-			controllerSelectionManager.OnViveControllerTrackpad (new Vector2 (device.GetAxis ().x, device.GetAxis ().y));
-			gazeSelectionManager.OnViveControllerTrackpad (new Vector2 (device.GetAxis ().x, device.GetAxis ().y));
+			// controllerSelectionManager.OnViveControllerTrackpad (new Vector2 (device.GetAxis ().x, device.GetAxis ().y));
+			// gazeSelectionManager.OnViveControllerTrackpad (new Vector2 (device.GetAxis ().x, device.GetAxis ().y));
 		}
 
 		// Trackpad pressed
 		if (device.GetPressDown (SteamVR_Controller.ButtonMask.Touchpad)) {
-			lastTrackpadPosition = gameObject.transform.position;
+			if (Settings.selectionMode == "Pointer") {
+				pointer.OnControllerTrackpad ();
+			}
+			// lastTrackpadPosition = gameObject.transform.position;
 		}
 
 		// Trackpad continuous press
 		if (device.GetPress (SteamVR_Controller.ButtonMask.Touchpad)) {
-			Vector3 diffVector = gameObject.transform.position - lastTrackpadPosition;
-			controllerSelectionManager.OnViveControllerTrackpadPress (diffVector);
-			lastTrackpadPosition = gameObject.transform.position;
+			if (Settings.selectionMode == "Pointer") {
+				pointer.OnControllerContinuousTrackpad ();
+			}
+			// Vector3 diffVector = gameObject.transform.position - lastTrackpadPosition;
+			// controllerSelectionManager.OnViveControllerTrackpadPress (diffVector);
+			// lastTrackpadPosition = gameObject.transform.position;
 		}
 
 		// Trackpad release
 		if (device.GetPressUp (SteamVR_Controller.ButtonMask.Touchpad)) {
-
+			if (Settings.selectionMode == "Pointer") {
+				pointer.OnControllerTrackpadRelease ();
+			}
 		}
 
 		// Trigger - Trigger on first click
 		if (device.GetPressDown (SteamVR_Controller.ButtonMask.Trigger)) {
 			triggerLastPressed = Time.time;
-			controllerSelectionManager.OnViveControllerTrigger ();
-			gazeSelectionManager.OnViveControllerTrigger ();
+			// TODO: Check if GRIP is held down aswell - Additive selection
+			if (Settings.selectionMode == "Pointer") {
+				pointer.OnControllerTrigger ();
+			}
+
+			// controllerSelectionManager.OnViveControllerTrigger ();
+			// gazeSelectionManager.OnViveControllerTrigger ();
 		}
 
 		// Trigger - Contiuous on trigger down
 		if (device.GetPress (SteamVR_Controller.ButtonMask.Trigger)) {
-			if (Time.time - triggerLastPressed > triggerDownToHoldTime) {
-				controllerSelectionManager.OnViveControllerTriggerHold (gameObject.transform.position);
-				gazeSelectionManager.OnViveControllerTriggerHold (gameObject.transform.position);
-			} 
+			triggerHold = (Time.time - triggerLastPressed > triggerDownToHoldTime);
+
+			if (!triggerHold) {
+				// TODO: Show trigger down progress
+				return;
+			}
+
+			// if (Settings.selectionMode == "Pointer") {
+			// 	pointer.OnControllerTriggerHold ();
+			// }
 		}
 
 		// Trigger - Released
 		if (device.GetPressUp (SteamVR_Controller.ButtonMask.Trigger)) {
 			triggerLastPressed = default(float);
 
-			controllerSelectionManager.OnViveControllerTriggerRelease ();
-			gazeSelectionManager.OnViveControllerTriggerRelease ();
+			if(Settings.selectionMode == "Pointer"){
+				pointer.OnControllerTriggerRelease ();
+			}
+
+			triggerHold = false;
 		}
 
 		// Application menu
 		if (device.GetPressDown (SteamVR_Controller.ButtonMask.ApplicationMenu)) {
 			controllerSelectionManager.OnViveControllerApplicationMenu ();
-			gazeSelectionManager.OnViveControllerApplicationMenu();
+			// gazeSelectionManager.OnViveControllerApplicationMenu();
 		}
 
 		// Grip
 		if (device.GetPressDown (SteamVR_Controller.ButtonMask.Grip)) {
-			controllerSelectionManager.OnViveControllerGrip ();
-			gazeSelectionManager.OnViveControllerGrip ();
+			gripDown = true;
+		}
+
+		if (device.GetPressUp (SteamVR_Controller.ButtonMask.Grip)) {
+			gripDown = false;	
 		}
 	}
 

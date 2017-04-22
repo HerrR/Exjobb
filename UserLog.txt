@@ -34,3 +34,6 @@ $Trigger 	-	 Lever 	-	 2017-03-24 17:01:18
 $Trigger 	-	 No target 	-	 2017-03-24 17:01:18
 $TriggerHold 	-	 Lever 	-	 2017-03-24 17:01:18
 $TriggerHold 	-	 No target 	-	 2017-03-24 17:01:18
+$Grip 	-	 DeselectAll 	-	 2017-04-20 12:06:09
+$ApplicationMenu 	-	 DeselectAll 	-	2017-04-20 12:57:28
+$Grip 	-	 DeselectAll 	-	 2017-04-20 13:49:17

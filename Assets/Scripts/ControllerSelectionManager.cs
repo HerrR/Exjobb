@@ -6,18 +6,16 @@ public class ControllerSelectionManager : MonoBehaviour {
 	private ViveController controller;
 	private LayerManager layerManager;
 	private ushort vibrationForce = 3000;
+
 	public GameObject targetObject;
 	public GameObject triggerDownObject;
-	public static bool arrangingLayers;
 
 	private bool triggerContinuousPressLogged = false;
 
 	void Start () {
 		controller = gameObject.transform.parent.GetComponent<ViveController> ();
 		layerManager = GameObject.FindObjectOfType<LayerManager> ();
-		arrangingLayers = false;
 	}
-
 
 	void OnTriggerEnter(Collider other) {
 		if (layerManager.rearrangementMode)
@@ -95,11 +93,8 @@ public class ControllerSelectionManager : MonoBehaviour {
 				if (!targetObject.gameObject.GetComponent<Lever> ().IsActive ()) {
 					targetObject.gameObject.GetComponent<Lever> ().ToggleActive ();
 				}
-				string[] msg = {
-					"$Trigger \t-\t Lever \t-\t " + Logger.GenerateTimestamp()	
-				};
 
-				Logger.WriteToLog (msg);
+				Logger.LogTrigger ("Lever");
 
 			} else if (targetObject.gameObject.GetComponent<LayerImage> ()) {
 				triggerDownObject = targetObject;
@@ -108,18 +103,11 @@ public class ControllerSelectionManager : MonoBehaviour {
 					return;
 				
 				targetObject.gameObject.GetComponent<LayerImage> ().ToggleSelection ();
-				string[] msg = {
-					"$Trigger \t-\t LayerImage \t-\t " + Logger.GenerateTimestamp()	
-				};
-
-				Logger.WriteToLog (msg);
+				Logger.LogTrigger ("LayerImage");
 			}
 		} else {
 			if (Settings.selectionMode == "Point") {
-				string[] msg = {
-					"$Trigger \t-\t No target \t-\t " + Logger.GenerateTimestamp()
-				};
-				Logger.WriteToLog (msg);
+				Logger.LogTrigger ("No target");
 			}
 		}
 
@@ -155,8 +143,11 @@ public class ControllerSelectionManager : MonoBehaviour {
 			return;
 
 		if (triggerDownObject.GetComponent<LayerImage> ()) {
+			/* 
 			if (!layerManager.rearrangementMode)
 				layerManager.ToggleRearrangementMode ();
+			*/
+
 
 			if (!triggerDownObject.GetComponent<LayerImage> ().isSelected)
 				triggerDownObject.GetComponent<LayerImage> ().ToggleSelection ();
@@ -170,9 +161,11 @@ public class ControllerSelectionManager : MonoBehaviour {
 	}
 
 	public void OnViveControllerTriggerRelease() {
+		/* 
 		if (layerManager.rearrangementMode) {
 			layerManager.ToggleRearrangementMode ();
 		}
+		*/
 		controller.ResetTriggerDownHoldTime ();
 
 		if (!triggerDownObject)
@@ -198,12 +191,14 @@ public class ControllerSelectionManager : MonoBehaviour {
 	}
 
 	public void OnViveControllerApplicationMenu() {
+		layerManager.ToggleRearrangementMode ();
+		/*
 		string[] msg = {
 			"$ApplicationMenu \t-\t DeselectAll \t-\t"	+ Logger.GenerateTimestamp()
 		};
 		Logger.WriteToLog(msg);
-
-		layerManager.DeselectAll ();
+		*/
+		// layerManager.DeselectAll ();
 	}
 
 	public void OnViveControllerTrackpad(Vector2 movementVector){

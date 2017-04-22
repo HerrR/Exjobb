@@ -36,6 +36,7 @@ public class GazeTracker : MonoBehaviour {
 	}
 
 	GameObject UpdateTarget(){
+		/*
 		Vector3 fwd = transform.TransformDirection(Vector3.forward);
 
 		RaycastHit[] hits;
@@ -72,6 +73,7 @@ public class GazeTracker : MonoBehaviour {
 			}
 		}
 
+		*/
 		return default(GameObject);
 	}
 

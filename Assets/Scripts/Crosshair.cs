@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GazeCrosshair : MonoBehaviour {
+public class Crosshair : MonoBehaviour {
 
 	void Start(){
-		if (Settings.selectionMode != "Gaze") {
+		if (Settings.selectionMode != "Pointer") {
 			HideCrosshair ();
 		}
 	}

@@ -16,6 +16,14 @@ public class Logger : MonoBehaviour {
 		return DateTime.Now.ToString ("yyyy-MM-dd HH:mm:ss");
 	}
 
+	public static void LogTrigger(string _target){
+		string[] msg = {
+			"$Trigger \t"+_target+" \t" + GenerateTimestamp()	
+		};
+
+		Logger.WriteToLog (msg);
+	}
+
 	public static void WriteToLog(string[] _inputLines){
 		if (fileName == default(string)) {
 			Debug.LogError ("No filename provided");

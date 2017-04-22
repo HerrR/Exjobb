@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class GazeSelectionManager : MonoBehaviour {
+	
 	public ViveController[] controllers;
 	private LayerManager layerManager;
 	private GazeTracker gazeTracker;
@@ -53,6 +54,7 @@ public class GazeSelectionManager : MonoBehaviour {
 	}
 
 	public void OnViveControllerTriggerHold(Vector3 devicePosition){
+		/*
 		if (Settings.selectionMode != "Gaze")
 			return;
 
@@ -73,8 +75,6 @@ public class GazeSelectionManager : MonoBehaviour {
 		}
 		
 		if (triggerDownObject.GetComponent<LayerImage> ()) {
-			if (!layerManager.rearrangementMode)
-				layerManager.ToggleRearrangementMode ();
 
 			if (!triggerDownObject.GetComponent<LayerImage> ().isSelected)
 				triggerDownObject.GetComponent<LayerImage> ().ToggleSelection ();
@@ -85,6 +85,7 @@ public class GazeSelectionManager : MonoBehaviour {
 
 			layerManager.MoveLayer (triggerDownObject, devicePosition);
 		}
+		*/
 	}
 
 	public void OnViveControllerTriggerRelease(){
@@ -106,4 +107,5 @@ public class GazeSelectionManager : MonoBehaviour {
 	public void OnViveControllerTrackpad(Vector2 movementVector){
 		// Debug.Log ("Vive controlelr trackpad called in gaze selection manager");
 	}
+
 }

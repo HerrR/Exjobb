@@ -6,29 +6,106 @@ using System.Linq;
 
 public class LayerManager : MonoBehaviour {
 	public bool rearrangementMode;
+	public List<Layer> layers;
+	public Pointer pointer;
+	public ControllerSelectionManager controllerSelectionManager;
 
-	// Use this for initialization
 	void Start () {
-		rearrangementMode = false;
+		rearrangementMode = true;
+	}
+
+	void Update(){
+		UpdateHovered ();
+	}
+
+	public void SortLayers(){
+		layers.Sort (Layer.SortLayerByBasePosZ);
+	}
+
+	public List<Layer> GetLayers(){
+		return layers;
+	}
+
+	// Called from Composite Image when all the layers have been created
+	public void FindLayers(){
+		layers = GameObject.FindObjectsOfType<Layer> ().ToList();
 	}
 
 	public void ToggleRearrangementMode(){
 		if (!rearrangementMode) {
-			DisableAccordionEffect ();
+			ExpandLayers();
 		} else {
-			EnableAccordionEffect ();
+			CollapseLayers();
 		}
 	
 		rearrangementMode = !rearrangementMode;
 	}
 
-	public void MoveLayer(GameObject layerGameObject, Vector3 _targetPosition) {
-		if (!rearrangementMode) {
-			ToggleRearrangementMode ();
-			DeselectAll ();
-			layerGameObject.GetComponent<LayerImage> ().ToggleSelection ();
+	public void ExpandLayers(){
+		foreach (Layer layer in layers) {
+			layer.CallMoveFromTo (
+				layer.gameObject.transform, 
+				layer.gameObject.transform.position,
+				layer.basePosition,
+				layer.movementSpeed);
+				
+		}
+	}
+
+	public void CollapseLayers(){
+		foreach (Layer layer in layers) {
+			Vector3 targetPos = new Vector3 ();
+			targetPos.x = layer.gameObject.transform.position.x;
+			targetPos.y = layer.gameObject.transform.position.y;
+			targetPos.z = layer.zMax;
+
+			layer.CallMoveFromTo (
+				layer.gameObject.transform,
+				layer.gameObject.transform.position,
+				targetPos,
+				layer.movementSpeed
+			);
+		}
+	}
+
+	void UpdateHovered(){
+		if (Settings.selectionMode == "Pointer") {
+			UpdatePointerHover ();
+		} else if (Settings.selectionMode == "Direct") {
+			UpdateControllerHover ();
+		} else {
+			Debug.LogError ("Unknown selection mode " + Settings.selectionMode);
+		}
+	}
+
+	void UpdatePointerHover(){
+		// If the pointer has no target -> Un-hover all layer images
+		if (!pointer.HasTarget ()) {
+			foreach (Layer layer in layers) {
+				if (layer.GetComponentInChildren<LayerImage> ().isHovered) {
+					layer.GetComponentInChildren<LayerImage> ().ToggleHovered ();
+				}
+			}
+			return;
 		}
 
+		// If the pointer has a layer image target -> Mark pointer target as hovered and un-hover all else
+		if (pointer.currentTarget.target.GetComponent<LayerImage> ()) {
+			foreach (Layer layer in layers) {
+				if (layer.GetComponentInChildren<LayerImage> () == pointer.currentTarget.target.GetComponent<LayerImage> ()) {
+					layer.GetComponentInChildren<LayerImage> ().SetHovered (true);
+				} else {
+					layer.GetComponentInChildren<LayerImage> ().SetHovered (false);
+				}
+			}
+		}
+	}
+
+	void UpdateControllerHover(){
+		// TODO : Update the hovered status of objects depending on if they are being hovered by the controller
+	}
+
+	public void MoveLayer(GameObject layerGameObject, Vector3 _targetPosition) {
 		try{
 			layerGameObject.transform.parent.GetComponent<Layer>().MoveZ(_targetPosition.z);
 		} catch {
@@ -36,31 +113,8 @@ public class LayerManager : MonoBehaviour {
 		}
 	}
 
-	public void DisableAccordionEffect() {
-		foreach (GameObject img in GameObject.FindGameObjectsWithTag ("Image")) {
-			try{
-				if(img.transform.parent.GetComponentInChildren<Layer>().accordion){
-					img.transform.parent.GetComponentInChildren<Layer>().ToggleAccordion();
-				}
-			} catch {
-				Debug.LogError ("Failed to disable accordion effect", img);
-			}
-		}
-	}
-
-	public void EnableAccordionEffect() {
-		foreach (GameObject img in GameObject.FindGameObjectsWithTag ("Image")) {
-			try{
-				if(!img.transform.parent.GetComponentInChildren<Layer>().accordion){
-					img.transform.parent.GetComponentInChildren<Layer>().ToggleAccordion();
-				}
-			} catch {
-				Debug.LogError ("Failed to enable accordion effect", img);
-			}
-		}
-	}
-
 	public void DeselectAll() {
+		// TODO: Update to use layers variable
 		GameObject[] allImages = GameObject.FindGameObjectsWithTag ("Image");
 
 		foreach (GameObject img in allImages) {
@@ -79,6 +133,13 @@ public class LayerManager : MonoBehaviour {
 		}
 	}
 
+	public void UpdateStartingPositions(){
+		GameObject[] allImages = GameObject.FindGameObjectsWithTag ("Image");
+		foreach (GameObject img in allImages) {
+			img.GetComponent<LayerImage> ().UpdateStartingPosition ();
+		}
+	}
+
 	public void MoveSelectedImagesInPlane(Vector2 movementVector){
 		GameObject[] allImages = GameObject.FindGameObjectsWithTag ("Image");
 
@@ -89,21 +150,7 @@ public class LayerManager : MonoBehaviour {
 			}
 
 			if (img.GetComponent<LayerImage> ().isSelected) 
-				img.GetComponent<LayerImage> ().MoveImage (movementVector);
-		}
-	}
-
-	public void GenerateShadowImages(){
-		List<Layer> allLayers = GameObject.FindObjectsOfType<Layer> ().ToList ();
-		allLayers.Sort (Layer.SortLayerByBasePosZ);
-		allLayers.Reverse ();
-
-		foreach (Layer layer in allLayers) {
-			if (layer.HasShadowImages ()) {
-				layer.DestroyShadowImages ();
-			}
-
-			layer.GenerateShadowImages ();
+				img.GetComponent<LayerImage> ().MoveImageByVector (movementVector);
 		}
 	}
 }

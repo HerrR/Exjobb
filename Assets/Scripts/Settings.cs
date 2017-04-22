@@ -10,9 +10,6 @@ public class Settings : MonoBehaviour {
 	public BoxCollider cameraMainCollider;
 	public BoxCollider leverMovedObjectCollider;
 
-	public string _navigationMode = "Spatial";
-	public string _selectionMode = "Gaze";
-
 	public static string navigationMode;
 	public static string selectionMode;
 
@@ -24,10 +21,13 @@ public class Settings : MonoBehaviour {
 
 	public string fileName = "UserTestLog.txt";
 	public Logger logger;
+
+	public string[] selectionModes = {"Pointer", "Direct"};
+	public int activeSelectionMode;
 	
 	void Awake () {
-		UpdateNavigationMode ();
-		UpdateSelectionMode ();
+		activeSelectionMode = 0;
+		SetSelectionMode(activeSelectionMode);
 	}
 
 	void Start(){
@@ -35,11 +35,70 @@ public class Settings : MonoBehaviour {
 		logger.SetFileName (fileName);
 	}
 
-
 	void Update(){
 		CheckReferenceImgageKeypress ();
-		CheckLogKeypress ();
+		CheckKeypress ();
 	}
+
+	public void NextSelectionMode(){
+		int numModes = selectionModes.Length;
+		int nextSelectionMode = activeSelectionMode + 1;
+		if (nextSelectionMode > numModes - 1) {
+			nextSelectionMode = 0;
+		}
+		SetSelectionMode (nextSelectionMode);
+	}
+
+	void CheckKeypress(){
+		if (Input.GetKeyDown (KeyCode.N)) {
+			LogNewParticipant ();
+		}
+
+		if (Input.GetKeyDown (KeyCode.S)) {
+			StartTask ();
+		}
+
+		if (Input.GetKeyDown (KeyCode.F)) {
+			FinishTask ();
+		}
+
+		if (Input.GetKeyDown (KeyCode.X)) {
+			LogSessionComplete ();
+		}
+
+		if (Input.GetKeyDown (KeyCode.M)) {
+			NextSelectionMode ();
+		}
+	}
+
+	/*
+	void UpdateNavigationMode(){
+		if (_navigationMode == "Lever") {
+			navigationMode = _navigationMode;
+			layerMoveBaseCollider = leverMovedObjectCollider;
+		} else if (_navigationMode == "Spatial") {
+			navigationMode = _navigationMode;
+			layerMoveBaseCollider = cameraMainCollider;
+		} else {
+			Debug.LogError ("Unknown navigation mode: "+_navigationMode, gameObject);
+		}
+	}
+	*/
+
+	void SetSelectionMode(int modeIndex){
+		try {
+			selectionMode = selectionModes [modeIndex];
+			activeSelectionMode = modeIndex;
+		} catch {
+			Debug.LogError ("Failed to update selection mode with index "+ modeIndex, gameObject);
+		}
+	}
+
+
+								/******************
+									  LOGGING
+								******************/
+
 
 	void LogNewParticipant(){
 		string[] introMessage = {
@@ -82,24 +141,6 @@ public class Settings : MonoBehaviour {
 		};
 
 		Logger.WriteToLog (msg);
-	}
-
-	void CheckLogKeypress(){
-		if (Input.GetKeyDown (KeyCode.N)) {
-			LogNewParticipant ();
-		}
-
-		if (Input.GetKeyDown (KeyCode.S)) {
-			StartTask ();
-		}
-
-		if (Input.GetKeyDown (KeyCode.F)) {
-			FinishTask ();
-		}
-
-		if (Input.GetKeyDown (KeyCode.X)) {
-			LogSessionComplete ();
-		}
 	}
 
 	string ReferenceImageBeingShown(){
@@ -146,31 +187,6 @@ public class Settings : MonoBehaviour {
 	void HideAllReferenceImages(){
 		foreach (GameObject refImg in referenceImages) {
 			refImg.SetActive (false);
-		}
-	}
-
-	void UpdateNavigationMode(){
-
-		if (_navigationMode == "Lever") {
-			navigationMode = _navigationMode;
-			layerMoveBaseCollider = leverMovedObjectCollider;
-		} else if (_navigationMode == "Spatial") {
-			navigationMode = _navigationMode;
-			layerMoveBaseCollider = cameraMainCollider;
-		} else {
-			Debug.LogError ("Unknown navigation mode: "+_navigationMode, gameObject);
-		}
-	}
-
-	void UpdateSelectionMode(){
-		if (_selectionMode == "Point") {
-			// TODO : Gaze/Point selection mode switch
-			selectionMode = _selectionMode;
-		} else if (_selectionMode == "Gaze") {
-			// TODO : Gaze/Point selection mode switch
-			selectionMode = _selectionMode;
-		} else {
-			Debug.LogError ("Unknown selection mode: "+_selectionMode, gameObject);
 		}
 	}
 }

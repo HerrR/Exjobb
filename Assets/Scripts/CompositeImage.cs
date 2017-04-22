@@ -6,37 +6,20 @@ using System.Linq;
 using System;
 
 public class CompositeImage : MonoBehaviour {
-	public ShadowCanvas[] shadowCanvases;
 	public GameObject layerPrefab;
 	public Image canvasFrame;
 	public Zone layerGenerationZone;
+	private LayerManager layerManager;
 
 	void Start() {
 		FindCanvasFrame ();
 		FindGenerationZone ();
 		PositionCanvasToGenerationZone ();
-
-		FindShadowCanvases ();
-		foreach (ShadowCanvas sc in shadowCanvases) {
-			sc.PositionCanvasToMainCanvas ();
-			sc.AdjustToGenerationZone();
-		}
-
+		layerManager = GameObject.FindObjectOfType<LayerManager>();
 		GenerateLayers (layerGenerationZone.bounds.zMin, layerGenerationZone.bounds.zMax);
-		ClearCanvas ();
 		HideFrame ();
 	}
-
-	void FindShadowCanvases(){
-		#pragma warning disable 0168
-		try {
-			shadowCanvases = GameObject.FindObjectsOfType<ShadowCanvas>();
-		} catch (Exception e){
-			Debug.LogError ("Could not find shadowCanvas");
-			Debug.LogError (e);
-		}
-		#pragma warning restore 0168
-	}
+		
 
 	void FindCanvasFrame() {
 		#pragma warning disable 0168
@@ -69,15 +52,24 @@ public class CompositeImage : MonoBehaviour {
 		gameObject.transform.position = newPosition;
 	}
 
-	Image[] GetLayersExcludingCanvasAndFrame(){
+	Image[] GetRelevantImages(){
 		List<Image> relevantLayerList = new List<Image> (gameObject.GetComponentsInChildren<Image> ());
 
 		for (int i = relevantLayerList.Count - 1 ; i >= 0; i--) {
-			if (relevantLayerList [i].gameObject.tag == "MainCanvas") 
+			if (relevantLayerList [i].gameObject.tag == "MainCanvas") {
 				relevantLayerList.RemoveAt (i);
+				continue;
+			}
 
-			if (relevantLayerList [i].gameObject.tag == "CanvasFrame") 
+			if (relevantLayerList [i].gameObject.tag == "CanvasFrame") {
 				relevantLayerList.RemoveAt (i);
+				continue;
+			}
+
+			if (relevantLayerList [i].gameObject.tag == "Crosshair") {
+				relevantLayerList.RemoveAt (i);
+				continue;
+			}
 		}
 
 		Image[] relevantLayers = relevantLayerList.ToArray ();
@@ -86,7 +78,7 @@ public class CompositeImage : MonoBehaviour {
 	}
 
 	public void GenerateLayers(float zMin, float zMax){
-		Image[] layers = GetLayersExcludingCanvasAndFrame ();
+		Image[] layers = GetRelevantImages ();
 
 		int layersGenerated = 0;
 		float distanceBetweenLayers = (zMax - zMin) / layers.Length;
@@ -109,22 +101,22 @@ public class CompositeImage : MonoBehaviour {
 			newLayer.GetComponentInChildren<Text> ().text = "Layer " + layersGenerated;
 			newLayer.GetComponent<Layer> ().basePosition = spawnPosition;
 
-			Instantiate (
+			Image imageCopy = Instantiate (
 				layerImage,
 				new Vector3(layerImage.transform.position.x, layerImage.transform.position.y, newLayer.transform.position.z),
 				spawnRotation,
 				newLayer.transform
 			);
 
+			Destroy (layerImage.GetComponent<LayerImage> ());
+			Destroy (layerImage.GetComponent<ImageSwitcher> ());
+			layerImage.gameObject.AddComponent<ShadowImage> ();
+			layerImage.GetComponent<ShadowImage> ().SetTrackedImage (imageCopy);
+			layerImage.gameObject.name = newLayer.name + " shadow";
+			layerImage.gameObject.tag = "ShadowImage";
 			layersGenerated++;
 		}
-	}
-
-	public void ClearCanvas(){
-		Image[] layers = GetLayersExcludingCanvasAndFrame ();
-		foreach (Image layer in layers) {
-			Destroy (layer.gameObject);
-		}
+		layerManager.FindLayers ();
 	}
 
 	public void HideFrame(){
