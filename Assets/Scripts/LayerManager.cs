@@ -22,6 +22,18 @@ public class LayerManager : MonoBehaviour {
 		layers.Sort (Layer.SortLayerByBasePosZ);
 	}
 
+	public void RearrangeShadowImages(){
+		ShadowImage[] shadowImages = gameObject.GetComponentsInChildren<ShadowImage> ();
+		for (int i = layers.Count - 1; i >= 0; i--) {
+			layers [i].gameObject.transform.SetSiblingIndex (i+2);
+			foreach (ShadowImage shadowImage in shadowImages) {
+				if (layers [i].gameObject.GetComponentInChildren<LayerImage> ().GetComponent<Image> () == shadowImage.trackedImage) {
+					shadowImage.gameObject.transform.SetAsLastSibling ();
+				}
+			}
+		}
+	}
+
 	public List<Layer> GetLayers(){
 		return layers;
 	}
@@ -37,12 +49,11 @@ public class LayerManager : MonoBehaviour {
 		} else {
 			CollapseLayers();
 		}
-	
-		rearrangementMode = !rearrangementMode;
 	}
 
 	public void ExpandLayers(){
-		foreach (Layer layer in layers) {
+		for(int i = 0 ; i < layers.Count ; i++){
+			Layer layer = layers [i];
 			layer.CallMoveFromTo (
 				layer.gameObject.transform, 
 				layer.gameObject.transform.position,
@@ -50,10 +61,13 @@ public class LayerManager : MonoBehaviour {
 				layer.movementSpeed);
 				
 		}
+		rearrangementMode = true;
 	}
 
 	public void CollapseLayers(){
-		foreach (Layer layer in layers) {
+		RearrangeShadowImages ();
+		for(int i = 0 ; i < layers.Count ; i++){
+			Layer layer = layers [i];
 			Vector3 targetPos = new Vector3 ();
 			targetPos.x = layer.gameObject.transform.position.x;
 			targetPos.y = layer.gameObject.transform.position.y;
@@ -66,6 +80,7 @@ public class LayerManager : MonoBehaviour {
 				layer.movementSpeed
 			);
 		}
+		rearrangementMode = false;
 	}
 
 	void UpdateHovered(){
@@ -81,9 +96,15 @@ public class LayerManager : MonoBehaviour {
 	void UpdatePointerHover(){
 		// If the pointer has no target -> Un-hover all layer images
 		if (!pointer.HasTarget ()) {
-			foreach (Layer layer in layers) {
+			//foreach (Layer layer in layers) {
+			for(int i = 0 ; i < layers.Count ; i++){
+				Layer layer = layers [i];
 				if (layer.GetComponentInChildren<LayerImage> ().isHovered) {
 					layer.GetComponentInChildren<LayerImage> ().ToggleHovered ();
+				}
+
+				if (layer.GetComponentInChildren<Frame> ().IsHovered ()) {
+					layer.GetComponentInChildren<Frame> ().Unhover ();
 				}
 			}
 			return;
@@ -91,7 +112,9 @@ public class LayerManager : MonoBehaviour {
 
 		// If the pointer has a layer image target -> Mark pointer target as hovered and un-hover all else
 		if (pointer.currentTarget.target.GetComponent<LayerImage> ()) {
-			foreach (Layer layer in layers) {
+
+			for(int i = 0 ; i < layers.Count ; i++){
+				Layer layer = layers [i];
 				if (layer.GetComponentInChildren<LayerImage> () == pointer.currentTarget.target.GetComponent<LayerImage> ()) {
 					layer.GetComponentInChildren<LayerImage> ().SetHovered (true);
 				} else {
@@ -99,10 +122,62 @@ public class LayerManager : MonoBehaviour {
 				}
 			}
 		}
+
+		// If the pointer has a frame target -> Mark frame as hovered an un-hover all else
+		if(pointer.currentTarget.target.GetComponent<Frame>()){
+			for (int i = 0; i < layers.Count; i++) {
+				Layer layer = layers [i];
+				if (layer.GetComponentInChildren<Frame> () == pointer.currentTarget.target.GetComponent<Frame> ()) {
+					layer.GetComponentInChildren<Frame> ().Hover ();
+				} else {
+					layer.GetComponentInChildren<Frame> ().Unhover ();
+				}
+			}
+		}
 	}
 
 	void UpdateControllerHover(){
-		// TODO : Update the hovered status of objects depending on if they are being hovered by the controller
+		if(!controllerSelectionManager.HasTarget()){
+			//foreach (Layer layer in layers) {
+			for(int i = 0 ; i < layers.Count ; i++){
+				Layer layer = layers [i];
+				if (layer.GetComponentInChildren<LayerImage> ().isHovered) {
+					layer.GetComponentInChildren<LayerImage> ().SetHovered (false);
+				}
+
+				if (layer.GetComponentInChildren<Frame> ().IsHovered()) {
+					layer.GetComponentInChildren<Frame> ().Unhover ();
+				}
+			}
+			return;
+		}
+
+		if (controllerSelectionManager.currentTarget.target.GetComponent<LayerImage> ()) {
+			//foreach (Layer layer in layers) {
+			for(int i = 0 ; i < layers.Count ; i++){
+				Layer layer = layers [i];
+				if (layer.GetComponentInChildren<LayerImage> () == controllerSelectionManager.currentTarget.target.GetComponent<LayerImage> ()) {
+					layer.GetComponentInChildren<LayerImage> ().SetHovered (true);
+				} else {
+					layer.GetComponentInChildren<LayerImage> ().SetHovered (false);
+					layer.GetComponentInChildren<Frame> ().Unhover ();
+				}
+			}
+			return;
+		}
+
+		if (controllerSelectionManager.currentTarget.target.GetComponent<Frame> ()) {
+			//foreach (Layer layer in layers) {
+			for(int i = 0 ; i < layers.Count ; i++){
+				Layer layer = layers [i];
+				if (layer.GetComponentInChildren<Frame> () == controllerSelectionManager.currentTarget.target.GetComponent<Frame> ()) {
+					layer.GetComponentInChildren<Frame> ().Hover ();
+				} else {
+					layer.GetComponentInChildren<LayerImage> ().SetHovered (false);
+					layer.GetComponentInChildren<Frame> ().Unhover ();
+				}
+			}
+		}
 	}
 
 	public void MoveLayer(GameObject layerGameObject, Vector3 _targetPosition) {
@@ -113,44 +188,79 @@ public class LayerManager : MonoBehaviour {
 		}
 	}
 
+	public void MoveSelectedLayersInZ(float _diffZ){
+		// foreach (Layer layer in layers) {
+		for(int i = 0 ; i < layers.Count ; i++){
+			Layer layer = layers [i];
+			if (layer.GetComponentInChildren<Frame> ().IsSelected ()) {
+				layer.MoveZ (layer.startEditPosition.z + _diffZ);
+			}
+		}
+	}
+
+	public bool HasSelectedFrames(){
+		bool found = false;
+		//foreach (Layer layer in layers) {
+		for(int i = 0 ; i < layers.Count ; i++){
+			Layer layer = layers [i];
+			if (layer.GetComponentInChildren<Frame> ().IsSelected ()) {
+				found = true;
+				break;
+			}
+		}
+		return found;
+	}
+
+	public bool HasSelectedImages(){
+		bool found = false;
+		// foreach (Layer layer in layers) {
+		for(int i = 0 ; i < layers.Count ; i++){
+			Layer layer = layers [i];
+			if (layer.GetComponentInChildren<LayerImage> ().isSelected) {
+				found = true;
+				break;
+			}
+		}
+		return found;
+	}
+
 	public void DeselectAll() {
-		// TODO: Update to use layers variable
-		GameObject[] allImages = GameObject.FindGameObjectsWithTag ("Image");
+		DeselectFrames();
+		DeselectImages ();
+	}
 
-		foreach (GameObject img in allImages) {
-			if (!img.GetComponent<LayerImage> ()) {
-				Debug.LogError ("Missing LayerImage component on object with Image tag:" + img.name, img);
-				continue;
-			}
+	public void DeselectFrames(){
+		// foreach (Layer layer in layers) {
+		for(int i = 0 ; i < layers.Count ; i++){
+			Layer layer = layers [i];
+			layer.GetComponentInChildren<Frame> ().Deselect ();
+		}
+	}
 
-			if (img.GetComponent<LayerImage> ().isSelected) {
-				img.GetComponent<LayerImage> ().ToggleSelection ();
-			}
-
-			if (img.GetComponent<LayerImage> ().isHovered) {
-				img.GetComponent<LayerImage> ().ToggleHovered ();
-			}
+	public void DeselectImages(){
+		// foreach (Layer layer in layers) {
+		for(int i = 0 ; i < layers.Count ; i++){
+			Layer layer = layers [i];
+			layer.GetComponentInChildren<LayerImage> ().SetSelected (false);
 		}
 	}
 
 	public void UpdateStartingPositions(){
-		GameObject[] allImages = GameObject.FindGameObjectsWithTag ("Image");
-		foreach (GameObject img in allImages) {
-			img.GetComponent<LayerImage> ().UpdateStartingPosition ();
+		// foreach (Layer layer in layers) {
+		for(int i = 0 ; i < layers.Count ; i++){
+			Layer layer = layers [i];
+			layer.GetComponentInChildren<LayerImage> ().UpdateStartingPosition ();
+			layer.UpdateStartEditPosition ();
 		}
 	}
 
 	public void MoveSelectedImagesInPlane(Vector2 movementVector){
-		GameObject[] allImages = GameObject.FindGameObjectsWithTag ("Image");
-
-		foreach(GameObject img in allImages) {
-			if (!img.GetComponent<LayerImage> ()) {
-				Debug.LogError ("Missing LayerImage component on object with Image tag:" + img.name, img);
-				continue;
+		// foreach (Layer layer in layers) {
+		for(int i = 0 ; i < layers.Count ; i++){
+			Layer layer = layers [i];
+			if (layer.GetComponentInChildren<LayerImage> ().isSelected) {
+				layer.GetComponentInChildren<LayerImage> ().MoveImageByVector (movementVector);
 			}
-
-			if (img.GetComponent<LayerImage> ().isSelected) 
-				img.GetComponent<LayerImage> ().MoveImageByVector (movementVector);
 		}
 	}
 }

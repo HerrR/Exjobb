@@ -7,202 +7,237 @@ public class ControllerSelectionManager : MonoBehaviour {
 	private LayerManager layerManager;
 	private ushort vibrationForce = 3000;
 
-	public GameObject targetObject;
-	public GameObject triggerDownObject;
+	public float amplificationFactor = 2.0f;
+
+	public Target currentTarget;
+	public Target triggerDownTarget;
 
 	private bool triggerContinuousPressLogged = false;
+	private bool tempRearrangementMode = false;
+	public Vector3 editStartingPoint;
+
+	[System.Serializable]
+	public struct Target{
+		public GameObject target;
+		public Vector3 impactPoint;
+
+		public Target(GameObject _target, Vector3 _impactPoint){
+			this.target = _target;
+			this.impactPoint = _impactPoint;
+		}
+	}
 
 	void Start () {
 		controller = gameObject.transform.parent.GetComponent<ViveController> ();
 		layerManager = GameObject.FindObjectOfType<LayerManager> ();
 	}
 
-	void OnTriggerEnter(Collider other) {
-		if (layerManager.rearrangementMode)
+	void Update(){
+		if (Settings.selectionMode != "Direct") {
 			return;
+		}
 
-		if (other.gameObject.tag == "Image") {
-			if (Settings.selectionMode == "Gaze") {
-				return;
+		if (HasTarget ()) {
+			if (currentTarget.target.tag == "MenuOption") {
+				if (!currentTarget.target.GetComponent<MenuOption> ().IsShowing ()) {
+					ResetTargets ();
+				}
 			}
+		}
+	}
 
-			if (!GameObject.Equals (other.gameObject, targetObject)) {
+	public bool HasTarget(){
+		return currentTarget.target != default(GameObject);
+	}
+
+	public bool HasTriggerDownTarget(){
+		return triggerDownTarget.target != default(GameObject);
+	}
+
+	public bool MovingZ(){
+		return layerManager.HasSelectedFrames () && controller.trackpadDown;
+	}
+
+	void OnTriggerEnter(Collider other) {
+		if (Settings.selectionMode != "Direct") {
+			return;
+		}
+
+		if (HasTarget ()) {
+			return;
+		}
+
+		if (MovingZ ()) {
+			return;
+		}
+
+		if (other.gameObject.tag == "Frame") {
+			if (layerManager.rearrangementMode) {
+				currentTarget = new Target (other.gameObject, controller.gameObject.transform.position);
 				controller.Vibrate (vibrationForce);
-				targetObject = other.gameObject;
+				return;
 			}
 		}
 
-		if (other.gameObject.tag == "Lever") {
+		if (other.gameObject.tag == "Image") {
+			currentTarget = new Target (other.gameObject, controller.gameObject.transform.position);
 			controller.Vibrate (vibrationForce);
-			targetObject = other.gameObject;
+			return;
 		}
 	}
 
 	void OnTriggerStay(Collider other) {
-		if (layerManager.rearrangementMode)
+		if (MovingZ ()) {
 			return;
+		}
 
-		if (other.gameObject.GetComponent<LayerImage> ()) {
-			if (targetObject == null)
-				targetObject = other.gameObject;
-
-			if (targetObject == other.gameObject) {
-				if (!other.gameObject.GetComponent<LayerImage> ().isHovered)
-					other.gameObject.GetComponent<LayerImage> ().ToggleHovered ();
-
-			} else {
-				if (other.gameObject.GetComponent<LayerImage> ().isHovered)
-					other.gameObject.GetComponent<LayerImage> ().ToggleHovered ();
-				
-			}
-		} else if (other.gameObject.GetComponent<Lever> ()) {
-			if (!GameObject.Equals (targetObject, other.gameObject)) {
-				targetObject = other.gameObject;
+		if (!HasTarget ()) {
+			if (other.gameObject.tag == "MenuOption") {
+				currentTarget = new Target (other.gameObject, controller.gameObject.transform.position);
+				controller.Vibrate (vibrationForce);
+				return;
 			}
 
-			if (!other.gameObject.GetComponent<Lever> ().IsActive ()) {
-				other.gameObject.GetComponent<Lever> ().ToggleActive ();
+			if (other.gameObject.tag == "Frame") {
+				if (layerManager.rearrangementMode) {
+					currentTarget = new Target (other.gameObject, controller.gameObject.transform.position);
+					controller.Vibrate (vibrationForce);
+					return;
+				}
+			}
+
+			if (other.gameObject.tag == "Image") {
+				currentTarget = new Target (other.gameObject, controller.gameObject.transform.position);
+				controller.Vibrate (vibrationForce);
+				return;
 			}
 		}
 	}
 
 	void OnTriggerExit(Collider other) {
-		if (layerManager.rearrangementMode)
-			return;
-
-		if (other.gameObject.GetComponent<LayerImage> () && other.gameObject.GetComponent<LayerImage> ().isHovered)
-			other.gameObject.GetComponent<LayerImage> ().ToggleHovered ();
-		
-		if (other.gameObject.GetComponent<Lever> () 
-			&& other.gameObject.GetComponent<Lever> ().IsActive ()
-			&& !GameObject.Equals(other.gameObject, triggerDownObject)) {
-			other.gameObject.GetComponent<Lever> ().ToggleActive ();
+		if(GameObject.Equals(other.gameObject, currentTarget.target)){
+			currentTarget = default(Target);
 		}
-
-		if (other.gameObject == targetObject)
-			targetObject = null;
 	}
 
 	public void OnViveControllerTrigger(){
-		triggerContinuousPressLogged = false;
-		
-		if (targetObject) {
-			if (targetObject.gameObject.GetComponent<Lever> ()) {
-				controller.SetTriggerDownHoldTime (0.0f);
-				triggerDownObject = targetObject;
-				if (!targetObject.gameObject.GetComponent<Lever> ().IsActive ()) {
-					targetObject.gameObject.GetComponent<Lever> ().ToggleActive ();
-				}
+		if (HasTarget ()) {
+			triggerDownTarget = currentTarget;
+		}
+	}
 
-				Logger.LogTrigger ("Lever");
-
-			} else if (targetObject.gameObject.GetComponent<LayerImage> ()) {
-				triggerDownObject = targetObject;
-
-				if (Settings.selectionMode == "Gaze")
-					return;
-				
-				targetObject.gameObject.GetComponent<LayerImage> ().ToggleSelection ();
-				Logger.LogTrigger ("LayerImage");
-			}
-		} else {
-			if (Settings.selectionMode == "Point") {
-				Logger.LogTrigger ("No target");
+	public void OnViveControllerTriggerHold() {
+		if (HasTarget ()) {
+			layerManager.DeselectAll ();
+			if (currentTarget.target.GetComponent<LayerImage> ()) {
+				currentTarget.target.transform.parent.GetComponentInChildren<Frame> ().Select ();
 			}
 		}
-
 	}
 
-	void LogTriggerHold(string _target){
-		string[] msg = {
-			"$TriggerHold \t-\t "+ _target +" \t-\t " + Logger.GenerateTimestamp()
-		};
-		Logger.WriteToLog (msg);
-		triggerContinuousPressLogged = true;
-	}
+	void SingleSelect(){
+		layerManager.DeselectAll ();
+		if(HasTarget()){
+			if (currentTarget.target.GetComponent<LayerImage> ()) {
+				currentTarget.target.GetComponent<LayerImage> ().ToggleSelection ();
+			}
 
-	public void OnViveControllerTriggerHold(Vector3 devicePosition) {
-		if (!triggerDownObject) {
-			if (Settings.selectionMode == "Point") {
-				if(!triggerContinuousPressLogged){
-					LogTriggerHold ("No target");
-				}
+			if (currentTarget.target.GetComponent<Frame> ()) {
+				currentTarget.target.GetComponent<Frame> ().ToggleSelection ();
 			}
 			return;
 		}
 
-		if (triggerDownObject.GetComponent<Lever> ()) {
-			if (!triggerContinuousPressLogged) {
-				LogTriggerHold ("Lever");
+		if (HasTriggerDownTarget ()) {
+			if (triggerDownTarget.target.GetComponent<LayerImage> ()) {
+				triggerDownTarget.target.GetComponent<LayerImage> ().ToggleSelection ();
 			}
 
-			triggerDownObject.GetComponent<Lever> ().MoveLever (devicePosition);
+			if (triggerDownTarget.target.GetComponent<Frame> ()) {
+				triggerDownTarget.target.GetComponent<Frame> ().ToggleSelection ();
+			}
+			return;
 		}
 
-		if (Settings.selectionMode == "Gaze")
-			return;
+	}
 
-		if (triggerDownObject.GetComponent<LayerImage> ()) {
-			/* 
-			if (!layerManager.rearrangementMode)
-				layerManager.ToggleRearrangementMode ();
-			*/
+	void AdditiveSelect(){
+		if (HasTarget ()) {
+			if (currentTarget.target.GetComponent<LayerImage> ()) {
+				layerManager.DeselectFrames ();
+				currentTarget.target.GetComponent<LayerImage> ().ToggleSelection ();
+			}
 
-
-			if (!triggerDownObject.GetComponent<LayerImage> ().isSelected)
-				triggerDownObject.GetComponent<LayerImage> ().ToggleSelection ();
-
-			layerManager.MoveLayer (triggerDownObject, devicePosition);
-
-			if (!triggerContinuousPressLogged) {
-				LogTriggerHold ("LayerImage");
+			if (currentTarget.target.GetComponent<Frame> ()) {
+				layerManager.DeselectImages ();
+				currentTarget.target.GetComponent<Frame> ().ToggleSelection ();
 			}
 		}
 	}
 
 	public void OnViveControllerTriggerRelease() {
-		/* 
+		if (HasTarget ()) {
+			if (currentTarget.target.GetComponent<MenuOption> ()) {
+				currentTarget.target.GetComponent<MenuOption> ().SelectOption ();
+				return;
+			}
+		}
+
+		if (!controller.gripDown) {
+			SingleSelect ();
+		} else {
+			AdditiveSelect ();
+		}
+		triggerDownTarget = default(Target);
+	}
+
+	public void OnViveControllerTrackpad(){
+		layerManager.UpdateStartingPositions ();
+		SetEditStartingPointToControllerPosition ();
+		if (layerManager.HasSelectedFrames () && !layerManager.rearrangementMode) {
+			layerManager.ToggleRearrangementMode ();
+			tempRearrangementMode = true;
+		}
+	}
+
+	public void SetEditStartingPointToControllerPosition(){
+		editStartingPoint = controller.gameObject.transform.position;
+		layerManager.UpdateStartingPositions ();
+	}
+
+	public void OnViveControllerTrackpadContinuous(){
+		Vector3 diffVector = controller.gameObject.transform.position - editStartingPoint;
+
+		if (layerManager.HasSelectedFrames ()) {
+			layerManager.MoveSelectedLayersInZ (diffVector.z * amplificationFactor);
+		}
+
+		if (layerManager.HasSelectedImages ()) {
+			layerManager.MoveSelectedImagesInPlane (new Vector2(diffVector.x * amplificationFactor, diffVector.y * amplificationFactor));
+		}
+	}
+
+	public void OnViveControllerTrackpadRelease(){
+		editStartingPoint = default(Vector3);
 		if (layerManager.rearrangementMode) {
+			layerManager.ExpandLayers ();	
+		}
+
+		if (tempRearrangementMode && layerManager.rearrangementMode) {
 			layerManager.ToggleRearrangementMode ();
 		}
-		*/
-		controller.ResetTriggerDownHoldTime ();
 
-		if (!triggerDownObject)
-			return;
-
-		if (triggerDownObject.GetComponent<Lever> ()) {
-			triggerDownObject.GetComponent<Lever> ().ToggleActive ();
-		}
-		triggerDownObject = default(GameObject);
+		tempRearrangementMode = false;
 	}
 
-	public void OnViveControllerTrackpadPress(Vector3 movementVector){
-		layerManager.MoveSelectedImagesInPlane (new Vector2 (movementVector.x * 100, movementVector.y * 100));
-	}
-
-	public void OnViveControllerGrip() {
-		string[] msg = {
-			"$Grip \t-\t DeselectAll \t-\t " + Logger.GenerateTimestamp()	
-		};
-		Logger.WriteToLog (msg);
-
-		layerManager.DeselectAll ();
-	}
-
+	/*
 	public void OnViveControllerApplicationMenu() {
 		layerManager.ToggleRearrangementMode ();
-		/*
-		string[] msg = {
-			"$ApplicationMenu \t-\t DeselectAll \t-\t"	+ Logger.GenerateTimestamp()
-		};
-		Logger.WriteToLog(msg);
-		*/
-		// layerManager.DeselectAll ();
 	}
+	*/
 
-	public void OnViveControllerTrackpad(Vector2 movementVector){
-		
-		// layerManager.MoveSelectedImagesInPlane (movementVector);
+	public void ResetTargets(){
+		currentTarget = default(Target);
+		triggerDownTarget = default(Target);
 	}
 }

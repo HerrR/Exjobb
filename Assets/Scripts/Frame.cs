@@ -8,8 +8,8 @@ public class Frame : MonoBehaviour {
 	public Sprite hoveredFrame;
 	public Sprite activeFrame;
 
-	private bool selected = false;
-	private bool hovered = false;
+	public bool selected = false;
+	public bool hovered = false;
 	private Image frame;
 
 	void Start () {

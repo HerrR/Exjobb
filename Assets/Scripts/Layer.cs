@@ -28,8 +28,12 @@ public class Layer : MonoBehaviour {
 	private Text layerText;
 
 	public float movementSpeed = 5.0f;
+	public float layerSwtichMovementSpeed = 2.0f;
 	public bool moveFromToRunning;
 	public bool accordionToggleInProcess;
+	private Frame frame;
+
+	public Vector3 startEditPosition;
 
 	public Neighbours neighbours;
 
@@ -52,6 +56,7 @@ public class Layer : MonoBehaviour {
 		generationZone = GameObject.FindGameObjectWithTag ("GenerationZone");
 		layerManager = GameObject.FindObjectOfType<LayerManager> ();
 		layerText = gameObject.GetComponentInChildren<Text> ();
+		frame = GetComponentInChildren<Frame> ();
 	}
 
 	void Start () {
@@ -66,8 +71,29 @@ public class Layer : MonoBehaviour {
 		ShowHideWhenZMaxOrMin ();
 	}
 
+	public void UpdateStartEditPosition(){
+		startEditPosition = basePosition;
+		// startEditPosition = gameObject.transform.position;
+	}
+
+	public void ResetStartEditPosition(){
+		startEditPosition = default(Vector3);
+	}
+
+	public void StartEditPositionToLayerBase(){
+		startEditPosition = basePosition;
+	}
+
 	public bool isSelected() {
 		return layerImage.GetComponent<LayerImage> ().isSelected;
+	}
+
+	public bool LayerImageSelected(){
+		return layerImage.GetComponent<LayerImage> ().isSelected;
+	}
+
+	public bool LayerSelected(){
+		return frame.IsSelected ();
 	}
 
 	void FindLayerImage(){
@@ -87,21 +113,22 @@ public class Layer : MonoBehaviour {
 
 		Vector3 startingPosition;
 		Vector3 targetPosition;
+
 		if (!accordion) {
 			startingPosition = gameObject.transform.position;
 			targetPosition = GetAccordionPosition ();
-			whenMoveComplete += EnableAccordion;
+			// whenMoveComplete += EnableAccordion;
 		} else {
 			startingPosition = GetAccordionPosition();
 			targetPosition = basePosition;
-			whenMoveComplete += DisableAccordion;
+			// whenMoveComplete += DisableAccordion;
 			accordion = false;
 		}
 
 		CallMoveFromTo(gameObject.transform,
 			gameObject.transform.position,
 			targetPosition,
-			2.5f);
+			movementSpeed);
 		
 		accordionToggleInProcess = true;
 	}
@@ -109,13 +136,13 @@ public class Layer : MonoBehaviour {
 
 
 	public void EnableAccordion(){
-		whenMoveComplete -= EnableAccordion;
+		// whenMoveComplete -= EnableAccordion;
 		accordion = true;
 		accordionToggleInProcess = false;
 	}
 
 	public void DisableAccordion(){
-		whenMoveComplete -= DisableAccordion;
+		// whenMoveComplete -= DisableAccordion;
 		accordion = false;
 		accordionToggleInProcess = false;
 	}
@@ -158,11 +185,15 @@ public class Layer : MonoBehaviour {
 
 	public void CheckForLayerSwitch(){
 		if ((neighbours.frontNeighbour != default(Layer)) && neighbours.frontNeighbour.basePosition.z < gameObject.transform.position.z) {
-			SwitchPositionWithLayer (neighbours.frontNeighbour);
+			if (!neighbours.frontNeighbour.LayerSelected ()) {
+				SwitchPositionWithLayer (neighbours.frontNeighbour);
+			}
 		}
 
 		if ((neighbours.backNeighbour != default(Layer)) && neighbours.backNeighbour.basePosition.z > gameObject.transform.position.z) {
-			SwitchPositionWithLayer (neighbours.backNeighbour);
+			if (!neighbours.backNeighbour.LayerSelected ()) {
+				SwitchPositionWithLayer (neighbours.backNeighbour);
+			}
 		}
 	}
 
@@ -174,8 +205,9 @@ public class Layer : MonoBehaviour {
 			target.gameObject.transform, 
 			target.gameObject.transform.position, 
 			target.basePosition, 
-			movementSpeed);
-		// TODO : Update shadow images order
+			layerSwtichMovementSpeed);
+		layerManager.SortLayers ();
+		layerManager.RearrangeShadowImages ();
 	}
 
 	public void ChangeBasePositionZ(float _z){

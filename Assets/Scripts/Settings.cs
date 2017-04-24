@@ -85,7 +85,7 @@ public class Settings : MonoBehaviour {
 	}
 	*/
 
-	void SetSelectionMode(int modeIndex){
+	public void SetSelectionMode(int modeIndex){
 		try {
 			selectionMode = selectionModes [modeIndex];
 			activeSelectionMode = modeIndex;

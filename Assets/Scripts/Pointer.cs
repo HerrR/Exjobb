@@ -14,8 +14,12 @@ public class Pointer : MonoBehaviour {
 	private Crosshair crosshair;
 	private LayerManager layerManager;
 	private ViveController controller;
+	private ushort vibrationForce = 3000;
 
 	public Vector3 editStartingPoint;
+	public Vector3 controllerPositionAtEditStart;
+
+	private bool tempRearrangementMode;
 
 	[System.Serializable]
 	public struct ImageHit{
@@ -40,10 +44,19 @@ public class Pointer : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if (Settings.selectionMode == "Pointer") {
-			UpdateTarget ();
+			if (!MovingZ ()) {
+				UpdateTarget ();
+				if (HasTarget ()) {
+					ray.UpdateRay (Vector3.Distance (transform.position, currentTarget.impactPoint));
+				}
+			} else {
+				HideRay ();
+				crosshair.HideCrosshair ();
+			}
 		} else {
 			ClearTarget ();
 			HideRay ();
+			crosshair.HideCrosshair ();
 		}
 	}
 
@@ -70,6 +83,13 @@ public class Pointer : MonoBehaviour {
 	}
 
 	public void OnControllerTriggerRelease(){
+		if (HasTarget ()) {
+			if (currentTarget.target.GetComponent<MenuOption> ()) {
+				currentTarget.target.GetComponent<MenuOption> ().SelectOption ();
+				return;
+			}
+		}
+
 		if (!controller.gripDown) {
 			SingleSelect ();
 		} else {
@@ -78,8 +98,18 @@ public class Pointer : MonoBehaviour {
 		triggerDownObject = default(ImageHit);
 	}
 
+	public void OnControllerTriggerHold(){
+		if (HasTarget ()) {
+			layerManager.DeselectAll ();
+			if (currentTarget.target.GetComponent<LayerImage> ()) {
+				currentTarget.target.transform.parent.GetComponentInChildren<Frame> ().Select ();
+			}
+		}
+	}
+
 	public void OnControllerTrackpad(){
 		layerManager.UpdateStartingPositions ();
+		controllerPositionAtEditStart = controller.gameObject.transform.position;
 
 		// If the pointer has an active target, the point of impact should be the editstartingpoint
 		if(HasTarget()){
@@ -87,6 +117,7 @@ public class Pointer : MonoBehaviour {
 			CreateEditPlane (editStartingPoint);
 			return;
 		}
+
 		// If the pointer has no target and the layers are not expanded (flat), the hit on the main 
 		// canvas should be the editstartingpoint
 		if(canvasHitAt != default(Vector3)){
@@ -110,23 +141,52 @@ public class Pointer : MonoBehaviour {
 	}
 
 	public void OnControllerContinuousTrackpad(){
-		if (editPlaneHitAt == default(Vector3)) {
-			return;
+		if (MovingZ() && !layerManager.rearrangementMode) {
+			tempRearrangementMode = true;
+			layerManager.ToggleRearrangementMode ();
 		}
-		Vector3 diffVec = editPlaneHitAt - editStartingPoint;
-		Vector2 movementVector = new Vector2 (diffVec.x, diffVec.y);
-		layerManager.MoveSelectedImagesInPlane (movementVector);
+
+		if (layerManager.HasSelectedFrames ()) {
+			Vector3 diffVector = controller.gameObject.transform.position - controllerPositionAtEditStart;
+			layerManager.MoveSelectedLayersInZ (diffVector.z * 2.5f);
+		}
+
+		if (layerManager.HasSelectedImages ()) {
+			if (editPlaneHitAt == default(Vector3)) {
+				return;
+			}
+			Vector3 diffVector = editPlaneHitAt - editStartingPoint;
+			Vector2 movementVector = new Vector2 (diffVector.x, diffVector.y);
+			layerManager.MoveSelectedImagesInPlane (movementVector);
+		}
+
 	}
 
 	public void OnControllerTrackpadRelease(){
 		DeleteEditPlane ();
 		editStartingPoint = default(Vector3);
+		controllerPositionAtEditStart = default(Vector3);
+		if (layerManager.rearrangementMode) {
+			layerManager.ExpandLayers ();	
+		}
+		if (tempRearrangementMode) {
+			if (layerManager.rearrangementMode) {
+				layerManager.ToggleRearrangementMode ();
+			}
+		}
+		tempRearrangementMode = false;
 	}
 
 	void AdditiveSelection(){
 		if (HasTarget ()) {
 			if (currentTarget.target.GetComponent<LayerImage> ()) {
+				layerManager.DeselectFrames ();
 				currentTarget.target.GetComponent<LayerImage> ().ToggleSelection ();
+			}
+
+			if (currentTarget.target.GetComponent<Frame> ()) {
+				layerManager.DeselectImages ();
+				currentTarget.target.GetComponent<Frame> ().ToggleSelection ();
 			}
 			return;
 		}
@@ -134,6 +194,10 @@ public class Pointer : MonoBehaviour {
 		if (HasTriggerDownTarget ()) {
 			if (triggerDownObject.target.GetComponent<LayerImage> ()) {
 				triggerDownObject.target.GetComponent<LayerImage> ().ToggleSelection ();
+			}
+
+			if (triggerDownObject.target.GetComponent<Frame> ()) {
+				triggerDownObject.target.GetComponent<Frame> ().ToggleSelection ();
 			}
 			return;
 		}
@@ -145,6 +209,11 @@ public class Pointer : MonoBehaviour {
 			if (currentTarget.target.GetComponent<LayerImage> ()) {
 				currentTarget.target.GetComponent<LayerImage> ().ToggleSelection ();
 			}
+
+			if (currentTarget.target.GetComponent<Frame> ()) {
+				currentTarget.target.GetComponent<Frame> ().Select ();
+			}
+
 			return;
 		}
 
@@ -152,8 +221,16 @@ public class Pointer : MonoBehaviour {
 			if (triggerDownObject.target.GetComponent<LayerImage> ()) {
 				triggerDownObject.target.GetComponent<LayerImage> ().ToggleSelection ();
 			}
+
+			if (triggerDownObject.target.GetComponent<Frame> ()) {
+				triggerDownObject.target.GetComponent<Frame> ().Select ();
+			}
 			return;
 		}
+	}
+
+	public bool MovingZ(){
+		return layerManager.HasSelectedFrames () && controller.trackpadDown;
 	}
 
 	void UpdateTarget(){
@@ -164,25 +241,34 @@ public class Pointer : MonoBehaviour {
 		bool canvasHit = false;
 		bool editPlaneHit = false;
 		List<ImageHit> imagesHit = new List<ImageHit>();
+		List<ImageHit> framesHit = new List<ImageHit> ();
+		// List<ImageHit> menuOptionsHit = new List<ImageHit> ();
 
 		foreach (RaycastHit hit in hits) {
 			if (hit.collider.gameObject.tag == "Image") {
 				imagesHit.Add (new ImageHit (hit.collider.gameObject, hit.point));
+				continue;
+			}
+
+			if (hit.collider.gameObject.tag == "Frame") {
+				framesHit.Add(new ImageHit(hit.collider.gameObject, hit.point));
+				continue;
 			}
 
 			if (hit.collider.gameObject.tag == "MainCanvas") {
-				crosshair.ShowCrosshair ();
-				crosshair.MoveCrosshair (hit.point);
 				canvasHitAt = hit.point;
 				canvasHit = true;
+				continue;
+			}
+
+			if (hit.collider.gameObject.tag == "MenuOption") {
+				currentTarget = new ImageHit (hit.collider.gameObject, hit.point);
+				return;
 			}
 
 			if (hit.collider.gameObject.tag == "Temp") {
 				editPlaneHitAt = hit.point;
 				editPlaneHit = true;
-			}
-
-			if (hit.collider.gameObject.GetComponent<Zone> ()) {
 				continue;
 			}
 		}
@@ -196,7 +282,10 @@ public class Pointer : MonoBehaviour {
 			ray.UpdateRay ();
 			canvasHitAt = default(Vector3);
 		} else {
-			ray.UpdateRay (Vector3.Distance (transform.position, canvasHitAt));
+			if (layerManager.HasSelectedFrames () && controller.trackpadDown) {
+				crosshair.HideCrosshair ();
+				HideRay ();
+			}
 		}
 
 		List<Layer> sortedLayers = layerManager.GetLayers ();
@@ -204,8 +293,10 @@ public class Pointer : MonoBehaviour {
 		foreach (Layer layer in sortedLayers) {
 			foreach (ImageHit imgHit in imagesHit) {
 				if (layer.layerImage == imgHit.target.GetComponent<Image>()){
-					// .GetComponent<Image> ()) {
 					imageFound = true;
+					if (currentTarget.target != imgHit.target) {
+						controller.Vibrate (vibrationForce);
+					}
 					currentTarget = imgHit;
 					break;
 				}
@@ -215,8 +306,23 @@ public class Pointer : MonoBehaviour {
 			}
 		}
 
-		if (!imageFound) {
-			currentTarget = default(ImageHit);
+		// If no image have been hit but a frame has, take the first frame hit and set it as the current target
+		if(!imageFound){
+			if (framesHit.Count > 0 && layerManager.rearrangementMode) {
+				currentTarget = framesHit [0];	
+			} else {
+				currentTarget = default(ImageHit);
+			}
+		}
+
+		if (!HasTarget () && canvasHit) {
+			ray.UpdateRay (Vector3.Distance (transform.position, canvasHitAt));
+			crosshair.ShowCrosshair ();
+			crosshair.MoveCrosshair (canvasHitAt);
+		}
+
+		if (HasTarget ()) {
+			crosshair.HideCrosshair ();
 		}
 	}
 }

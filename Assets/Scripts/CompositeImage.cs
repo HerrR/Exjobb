@@ -16,7 +16,7 @@ public class CompositeImage : MonoBehaviour {
 		FindGenerationZone ();
 		PositionCanvasToGenerationZone ();
 		layerManager = GameObject.FindObjectOfType<LayerManager>();
-		GenerateLayers (layerGenerationZone.bounds.zMin, layerGenerationZone.bounds.zMax);
+		GenerateLayers (layerGenerationZone.bounds.zMin + 0.01f, layerGenerationZone.bounds.zMax - 0.01f);
 		HideFrame ();
 	}
 		
