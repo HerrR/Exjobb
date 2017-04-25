@@ -20,6 +20,8 @@ public class ViveController : MonoBehaviour {
 	public bool gripDown;
 	public bool trackpadDown;
 
+	private bool triggerHoldLogged = false;
+
 	void Start () {
 		trackedObject = GetComponent<SteamVR_TrackedObject> ();
 		controllerSelectionManager = gameObject.GetComponentInChildren<ControllerSelectionManager> ();
@@ -41,6 +43,7 @@ public class ViveController : MonoBehaviour {
 		// Trackpad pressed
 		if (device.GetPressDown (SteamVR_Controller.ButtonMask.Touchpad)) {
 			trackpadDown = true;
+			Logger.LogKeypress ("Trackpad Down");
 			if (Settings.selectionMode == "Pointer") {
 				pointer.OnControllerTrackpad ();
 			}
@@ -63,6 +66,7 @@ public class ViveController : MonoBehaviour {
 
 		// Trackpad release
 		if (device.GetPressUp (SteamVR_Controller.ButtonMask.Touchpad)) {
+			Logger.LogKeypress ("Trackpad Up");
 			trackpadDown = false;
 			if (Settings.selectionMode == "Pointer") {
 				pointer.OnControllerTrackpadRelease ();
@@ -75,6 +79,7 @@ public class ViveController : MonoBehaviour {
 
 		// Trigger - Trigger on first click
 		if (device.GetPressDown (SteamVR_Controller.ButtonMask.Trigger)) {
+			Logger.LogKeypress ("Trigger Down");
 			triggerLastPressed = Time.time;
 			if (Settings.selectionMode == "Pointer") {
 				pointer.OnControllerTrigger ();
@@ -99,6 +104,11 @@ public class ViveController : MonoBehaviour {
 			}
 			triggerDownProgress.SetProgress (1);
 
+			if (!triggerHoldLogged) {
+				Logger.LogKeypress ("Trigger Hold");
+				triggerHoldLogged = true;
+			}
+
 			if (Settings.selectionMode == "Pointer") {
 				pointer.OnControllerTriggerHold ();
 			}
@@ -110,6 +120,9 @@ public class ViveController : MonoBehaviour {
 
 		// Trigger - Released
 		if (device.GetPressUp (SteamVR_Controller.ButtonMask.Trigger)) {
+			Logger.LogKeypress ("Trigger Up");
+			triggerHoldLogged = false;
+
 			triggerLastPressed = default(float);
 			triggerDownProgress.Hide ();
 			triggerHold = false;
@@ -124,6 +137,7 @@ public class ViveController : MonoBehaviour {
 				return;
 			}
 
+
 		}
 
 		// Application menu
@@ -132,10 +146,12 @@ public class ViveController : MonoBehaviour {
 
 		// Grip
 		if (device.GetPressDown (SteamVR_Controller.ButtonMask.Grip)) {
+			Logger.LogKeypress ("Grip Down");
 			gripDown = true;
 		}
 
 		if (device.GetPressUp (SteamVR_Controller.ButtonMask.Grip)) {
+			Logger.LogKeypress ("Grip Up");
 			gripDown = false;	
 		}
 	}

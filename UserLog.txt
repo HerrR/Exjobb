@@ -1,39 +1,108 @@
-$ApplicationMenu 	-	 DeselectAll 	-	2017-03-24 16:58:57
-$Trigger 	-	 LayerImage 	-	 2017-03-24 16:59:47
-$TriggerHold 	-	 LayerImage 	-	 2017-03-24 16:59:47
-$Trigger 	-	 LayerImage 	-	 2017-03-24 16:59:49
-$TriggerHold 	-	 LayerImage 	-	 2017-03-24 16:59:50
-$Trigger 	-	 LayerImage 	-	 2017-03-24 17:00:09
-$TriggerHold 	-	 LayerImage 	-	 2017-03-24 17:00:10
-$Grip 	-	 DeselectAll 	-	 2017-03-24 17:00:16
 ------------------------------------------------------
 New Participant
-Session started 2017-03-24 17:00:28
-Selection mode: Gaze
-Navigation mode: Lever
+Session started	2017-04-25 15:37:08
+Prototype Version	2
+Filename	UserLog.txt
 ------------------------------------------------------
-###
-Task started: 47.83852
-Reference image: Reference Image 1
-$Trigger 	-	 LayerImage 	-	 2017-03-24 17:00:30
-$TriggerHold 	-	 LayerImage 	-	 2017-03-24 17:00:31
-$Trigger 	-	 LayerImage 	-	 2017-03-24 17:00:33
-$Grip 	-	 DeselectAll 	-	 2017-03-24 17:00:36
-$Grip 	-	 DeselectAll 	-	 2017-03-24 17:00:36
-$Trigger 	-	 No target 	-	 2017-03-24 17:00:37
-$Trigger 	-	 LayerImage 	-	 2017-03-24 17:00:40
-$TriggerHold 	-	 LayerImage 	-	 2017-03-24 17:00:40
-$Trigger 	-	 No target 	-	 2017-03-24 17:00:48
-$Trigger 	-	 Lever 	-	 2017-03-24 17:01:09
-$Trigger 	-	 No target 	-	 2017-03-24 17:01:09
-$TriggerHold 	-	 Lever 	-	 2017-03-24 17:01:09
-$TriggerHold 	-	 No target 	-	 2017-03-24 17:01:09
-$Trigger 	-	 LayerImage 	-	 2017-03-24 17:01:14
-$TriggerHold 	-	 LayerImage 	-	 2017-03-24 17:01:14
-$Trigger 	-	 Lever 	-	 2017-03-24 17:01:18
-$Trigger 	-	 No target 	-	 2017-03-24 17:01:18
-$TriggerHold 	-	 Lever 	-	 2017-03-24 17:01:18
-$TriggerHold 	-	 No target 	-	 2017-03-24 17:01:18
-$Grip 	-	 DeselectAll 	-	 2017-04-20 12:06:09
-$ApplicationMenu 	-	 DeselectAll 	-	2017-04-20 12:57:28
-$Grip 	-	 DeselectAll 	-	 2017-04-20 13:49:17
+Task Started	Reference Image 1	9.021453
+$Trigger Down	2017-04-25 15:37:19
+$Trigger Hold	2017-04-25 15:37:20
+$Trackpad Down	2017-04-25 15:37:21
+#MoveZ	1	Pointer	2017-04-25 15:37:21
+$Trackpad Up	2017-04-25 15:37:22
+$Trigger Up	2017-04-25 15:37:22
+&Single	LayerImage	Pointer	2017-04-25 15:37:22
+@Menu Show	2017-04-25 15:37:24
+$Trigger Down	2017-04-25 15:37:27
+$Trigger Up	2017-04-25 15:37:27
+@Menu Direct Selection	2017-04-25 15:37:27
+@Menu Hide	2017-04-25 15:37:28
+$Trigger Down	2017-04-25 15:37:30
+$Trigger Hold	2017-04-25 15:37:31
+$Trackpad Down	2017-04-25 15:37:32
+#MoveZ	1	Direct	2017-04-25 15:37:32
+$Trackpad Up	2017-04-25 15:37:33
+$Trigger Up	2017-04-25 15:37:33
+&Single	LayerImage	Direct	2017-04-25 15:37:33
+$Trigger Down	2017-04-25 15:37:34
+$Trigger Up	2017-04-25 15:37:34
+&Single	Frame	Direct	2017-04-25 15:37:34
+$Grip Down	2017-04-25 15:37:35
+$Trigger Down	2017-04-25 15:37:35
+$Trigger Up	2017-04-25 15:37:35
+&Additive	Frame	Direct	2017-04-25 15:37:35
+$Grip Up	2017-04-25 15:37:35
+$Trackpad Down	2017-04-25 15:37:36
+#MoveZ	2	Direct	2017-04-25 15:37:36
+$Trackpad Up	2017-04-25 15:37:39
+$Trigger Down	2017-04-25 15:37:40
+$Trigger Up	2017-04-25 15:37:40
+&Single	LayerImage	Direct	2017-04-25 15:37:40
+$Grip Down	2017-04-25 15:37:44
+$Trigger Down	2017-04-25 15:37:44
+$Trigger Up	2017-04-25 15:37:44
+&Additive	LayerImage	Direct	2017-04-25 15:37:44
+$Grip Up	2017-04-25 15:37:44
+$Trackpad Down	2017-04-25 15:37:47
+#MoveXY	2	Direct	2017-04-25 15:37:47
+$Trackpad Up	2017-04-25 15:37:50
+$Grip Down	2017-04-25 15:37:56
+$Grip Up	2017-04-25 15:37:57
+@Menu Show	2017-04-25 15:37:58
+@Menu Hide	2017-04-25 15:37:59
+@Menu Show	2017-04-25 15:38:03
+$Trigger Down	2017-04-25 15:38:05
+$Trigger Up	2017-04-25 15:38:05
+@Menu Pointer Selection	2017-04-25 15:38:05
+$Trigger Down	2017-04-25 15:38:10
+$Trigger Up	2017-04-25 15:38:10
+@Menu Direct Selection	2017-04-25 15:38:10
+$Trigger Down	2017-04-25 15:38:13
+$Trigger Up	2017-04-25 15:38:13
+@Menu Direct Selection	2017-04-25 15:38:13
+$Trigger Down	2017-04-25 15:38:15
+$Trigger Up	2017-04-25 15:38:15
+-Collapse	2017-04-25 15:38:15
+@Menu Collapse	2017-04-25 15:38:15
+$Trigger Down	2017-04-25 15:38:20
+$Trigger Up	2017-04-25 15:38:20
+-Expand	2017-04-25 15:38:20
+@Menu Expand	2017-04-25 15:38:20
+Task Finished	Reference Image 1	2017-04-25 15:38:29	79.06421
+Task Started	Reference Image 2	94.35088
+Task Finished	Reference Image 2	2017-04-25 15:38:38	3.152763
+------------------------------------------------------
+Session Finished	2017-04-25 15:38:39
+------------------------------------------------------
+$Trigger Down	2017-04-25 15:40:53
+$Trigger Up	2017-04-25 15:40:53
+&Single	No Target	Pointer	2017-04-25 15:40:53
+$Trigger Down	2017-04-25 15:40:55
+$Trigger Up	2017-04-25 15:40:55
+&Single	Frame	Pointer	2017-04-25 15:40:55
+$Trackpad Down	2017-04-25 15:40:58
+#MoveZ	1	Pointer	2017-04-25 15:40:58
+$Trackpad Up	2017-04-25 15:41:01
+$Grip Down	2017-04-25 15:41:02
+$Trigger Down	2017-04-25 15:41:03
+$Trigger Up	2017-04-25 15:41:03
+&Additive	No Target	Pointer	2017-04-25 15:41:03
+$Trigger Down	2017-04-25 15:41:03
+$Trigger Up	2017-04-25 15:41:03
+&Additive	Frame	Pointer	2017-04-25 15:41:03
+$Trigger Down	2017-04-25 15:41:03
+$Trigger Up	2017-04-25 15:41:04
+&Additive	Frame	Pointer	2017-04-25 15:41:04
+$Trigger Down	2017-04-25 15:41:04
+$Trigger Up	2017-04-25 15:41:04
+&Additive	No Target	Pointer	2017-04-25 15:41:04
+$Grip Up	2017-04-25 15:41:04
+$Trigger Down	2017-04-25 15:41:04
+$Trigger Up	2017-04-25 15:41:04
+&Single	No Target	Pointer	2017-04-25 15:41:04
+$Trigger Down	2017-04-25 15:41:05
+$Trigger Up	2017-04-25 15:41:05
+&Single	No Target	Pointer	2017-04-25 15:41:05
+$Trigger Down	2017-04-25 15:41:05
+$Trigger Up	2017-04-25 15:41:05
+&Single	Frame	Pointer	2017-04-25 15:41:05

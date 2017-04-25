@@ -16,6 +16,8 @@ public class ControllerSelectionManager : MonoBehaviour {
 	private bool tempRearrangementMode = false;
 	public Vector3 editStartingPoint;
 
+	private bool trackpadInteractionLogged = false;
+
 	[System.Serializable]
 	public struct Target{
 		public GameObject target;
@@ -140,10 +142,12 @@ public class ControllerSelectionManager : MonoBehaviour {
 		if(HasTarget()){
 			if (currentTarget.target.GetComponent<LayerImage> ()) {
 				currentTarget.target.GetComponent<LayerImage> ().ToggleSelection ();
+				Logger.LogSelection ("Single", "LayerImage");
 			}
 
 			if (currentTarget.target.GetComponent<Frame> ()) {
 				currentTarget.target.GetComponent<Frame> ().ToggleSelection ();
+				Logger.LogSelection ("Single", "Frame");
 			}
 			return;
 		}
@@ -151,13 +155,17 @@ public class ControllerSelectionManager : MonoBehaviour {
 		if (HasTriggerDownTarget ()) {
 			if (triggerDownTarget.target.GetComponent<LayerImage> ()) {
 				triggerDownTarget.target.GetComponent<LayerImage> ().ToggleSelection ();
+				Logger.LogSelection ("Single", "LayerImage");
 			}
 
 			if (triggerDownTarget.target.GetComponent<Frame> ()) {
 				triggerDownTarget.target.GetComponent<Frame> ().ToggleSelection ();
+				Logger.LogSelection ("Single", "Frame");
 			}
 			return;
 		}
+
+		Logger.LogSelection ("Single", "No Target");
 
 	}
 
@@ -166,19 +174,38 @@ public class ControllerSelectionManager : MonoBehaviour {
 			if (currentTarget.target.GetComponent<LayerImage> ()) {
 				layerManager.DeselectFrames ();
 				currentTarget.target.GetComponent<LayerImage> ().ToggleSelection ();
+				Logger.LogSelection ("Additive", "LayerImage");
 			}
 
 			if (currentTarget.target.GetComponent<Frame> ()) {
 				layerManager.DeselectImages ();
 				currentTarget.target.GetComponent<Frame> ().ToggleSelection ();
+				Logger.LogSelection ("Additive", "Frame");
 			}
+			return;
 		}
+
+		if (HasTriggerDownTarget ()) {
+			if (triggerDownTarget.target.GetComponent<LayerImage> ()) {
+				triggerDownTarget.target.GetComponent<LayerImage> ().ToggleSelection ();
+				Logger.LogSelection ("Additive", "LayerImage");
+			}
+
+			if (triggerDownTarget.target.GetComponent<Frame> ()) {
+				triggerDownTarget.target.GetComponent<Frame> ().ToggleSelection ();
+				Logger.LogSelection ("Additive", "Frame");
+			}
+			return;
+		}
+
+		Logger.LogSelection ("Additive", "No Target");
 	}
 
 	public void OnViveControllerTriggerRelease() {
 		if (HasTarget ()) {
 			if (currentTarget.target.GetComponent<MenuOption> ()) {
 				currentTarget.target.GetComponent<MenuOption> ().SelectOption ();
+				Logger.LogMenuInteraction (currentTarget.target.name);
 				return;
 			}
 		}
@@ -209,16 +236,26 @@ public class ControllerSelectionManager : MonoBehaviour {
 		Vector3 diffVector = controller.gameObject.transform.position - editStartingPoint;
 
 		if (layerManager.HasSelectedFrames ()) {
+			if (!trackpadInteractionLogged) {
+				Logger.LogInteraction ("MoveZ", layerManager.NumSelectedFrames ());
+				trackpadInteractionLogged = true;
+			}
 			layerManager.MoveSelectedLayersInZ (diffVector.z * amplificationFactor);
 		}
 
 		if (layerManager.HasSelectedImages ()) {
+			if (!trackpadInteractionLogged) {
+				Logger.LogInteraction ("MoveXY", layerManager.NumSelectedImages ());
+				trackpadInteractionLogged = true;
+			}
 			layerManager.MoveSelectedImagesInPlane (new Vector2(diffVector.x * amplificationFactor, diffVector.y * amplificationFactor));
 		}
 	}
 
 	public void OnViveControllerTrackpadRelease(){
 		editStartingPoint = default(Vector3);
+		trackpadInteractionLogged = false;
+
 		if (layerManager.rearrangementMode) {
 			layerManager.ExpandLayers ();	
 		}

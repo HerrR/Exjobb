@@ -23,7 +23,7 @@ public class Collapse : MenuOption {
 	}
 
 	public override void SelectOption(){
-		layerManager.CollapseLayers ();
+		layerManager.ToggleRearrangementMode ();
 		Hide ();
 	}
 }

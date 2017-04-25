@@ -51,39 +51,24 @@ public class Settings : MonoBehaviour {
 
 	void CheckKeypress(){
 		if (Input.GetKeyDown (KeyCode.N)) {
-			LogNewParticipant ();
+			Logger.LogNewParticipant ();
 		}
 
 		if (Input.GetKeyDown (KeyCode.S)) {
-			StartTask ();
+			taskStartTime = Time.time;
+			Logger.LogTaskStart (taskStartTime, ReferenceImageBeingShown());
 		}
 
 		if (Input.GetKeyDown (KeyCode.F)) {
-			FinishTask ();
+			float timeToFinish = Time.time - taskStartTime;
+			Logger.LogTaskFinish (timeToFinish, ReferenceImageBeingShown());
+			taskStartTime = default(float);
 		}
 
 		if (Input.GetKeyDown (KeyCode.X)) {
-			LogSessionComplete ();
-		}
-
-		if (Input.GetKeyDown (KeyCode.M)) {
-			NextSelectionMode ();
+			Logger.LogSessionComplete ();
 		}
 	}
-
-	/*
-	void UpdateNavigationMode(){
-		if (_navigationMode == "Lever") {
-			navigationMode = _navigationMode;
-			layerMoveBaseCollider = leverMovedObjectCollider;
-		} else if (_navigationMode == "Spatial") {
-			navigationMode = _navigationMode;
-			layerMoveBaseCollider = cameraMainCollider;
-		} else {
-			Debug.LogError ("Unknown navigation mode: "+_navigationMode, gameObject);
-		}
-	}
-	*/
 
 	public void SetSelectionMode(int modeIndex){
 		try {
@@ -94,56 +79,7 @@ public class Settings : MonoBehaviour {
 		}
 	}
 
-
-								/******************
-									  LOGGING
-								******************/
-
-
-	void LogNewParticipant(){
-		string[] introMessage = {
-			"------------------------------------------------------",
-			"New Participant",
-			"Session started " + DateTime.Now.ToString ("yyyy-MM-dd HH:mm:ss"),
-			"Selection mode: " + selectionMode,
-			"Navigation mode: " + navigationMode,
-			"------------------------------------------------------"
-		};
-		Logger.WriteToLog(introMessage);
-	}
-
-	void StartTask(){
-		taskStartTime = Time.time;
-		string[] msg = {
-			"###",
-			"Task started: " + taskStartTime,
-			"Reference image: " + ReferenceImageBeingShown()
-		};
-		Logger.WriteToLog (msg);
-		// WriteToLog (msg);
-	}
-
-	void FinishTask(){
-		string[] msg = {
-			"Task finished: " + (Time.time),
-			"Time to complete: " + (Time.time - taskStartTime),
-			"###"
-		};
-		Logger.WriteToLog (msg);
-		taskStartTime = default(float);
-	}
-
-	void LogSessionComplete(){
-		string[] msg = {
-			"###",
-			"Session finished " + DateTime.Now.ToString ("yyyy-MM-dd HH:mm:ss"),
-			"###"
-		};
-
-		Logger.WriteToLog (msg);
-	}
-
-	string ReferenceImageBeingShown(){
+	public string ReferenceImageBeingShown(){
 		for (int i = 0; i < referenceImages.Length; i++) {
 			if (referenceImages [i].activeSelf) {
 				return referenceImages [i].name;

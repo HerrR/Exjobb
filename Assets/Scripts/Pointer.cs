@@ -21,6 +21,9 @@ public class Pointer : MonoBehaviour {
 
 	private bool tempRearrangementMode;
 
+	// LOGGER VARIABLES
+	private bool trackpadInteractionLogged = false;
+
 	[System.Serializable]
 	public struct ImageHit{
 		public GameObject target;
@@ -85,6 +88,7 @@ public class Pointer : MonoBehaviour {
 	public void OnControllerTriggerRelease(){
 		if (HasTarget ()) {
 			if (currentTarget.target.GetComponent<MenuOption> ()) {
+				Logger.LogMenuInteraction (currentTarget.target.name);
 				currentTarget.target.GetComponent<MenuOption> ().SelectOption ();
 				return;
 			}
@@ -147,6 +151,12 @@ public class Pointer : MonoBehaviour {
 		}
 
 		if (layerManager.HasSelectedFrames ()) {
+
+			if (!trackpadInteractionLogged) {
+				Logger.LogInteraction("MoveZ", layerManager.NumSelectedFrames());
+				trackpadInteractionLogged = true;
+			}
+
 			Vector3 diffVector = controller.gameObject.transform.position - controllerPositionAtEditStart;
 			layerManager.MoveSelectedLayersInZ (diffVector.z * 2.5f);
 		}
@@ -157,6 +167,12 @@ public class Pointer : MonoBehaviour {
 			}
 			Vector3 diffVector = editPlaneHitAt - editStartingPoint;
 			Vector2 movementVector = new Vector2 (diffVector.x, diffVector.y);
+
+			if (!trackpadInteractionLogged) {
+				Logger.LogInteraction ("MoveXY", layerManager.NumSelectedImages ());
+				trackpadInteractionLogged = true;
+			}
+
 			layerManager.MoveSelectedImagesInPlane (movementVector);
 		}
 
@@ -166,15 +182,19 @@ public class Pointer : MonoBehaviour {
 		DeleteEditPlane ();
 		editStartingPoint = default(Vector3);
 		controllerPositionAtEditStart = default(Vector3);
+
 		if (layerManager.rearrangementMode) {
 			layerManager.ExpandLayers ();	
 		}
+
 		if (tempRearrangementMode) {
 			if (layerManager.rearrangementMode) {
 				layerManager.ToggleRearrangementMode ();
 			}
 		}
 		tempRearrangementMode = false;
+
+		trackpadInteractionLogged = false;
 	}
 
 	void AdditiveSelection(){
@@ -182,11 +202,13 @@ public class Pointer : MonoBehaviour {
 			if (currentTarget.target.GetComponent<LayerImage> ()) {
 				layerManager.DeselectFrames ();
 				currentTarget.target.GetComponent<LayerImage> ().ToggleSelection ();
+				Logger.LogSelection("Additive", "LayerImage");
 			}
 
 			if (currentTarget.target.GetComponent<Frame> ()) {
 				layerManager.DeselectImages ();
 				currentTarget.target.GetComponent<Frame> ().ToggleSelection ();
+				Logger.LogSelection ("Additive", "Frame");
 			}
 			return;
 		}
@@ -194,13 +216,18 @@ public class Pointer : MonoBehaviour {
 		if (HasTriggerDownTarget ()) {
 			if (triggerDownObject.target.GetComponent<LayerImage> ()) {
 				triggerDownObject.target.GetComponent<LayerImage> ().ToggleSelection ();
+				Logger.LogSelection ("Additive", "LayerImage");
+
 			}
 
 			if (triggerDownObject.target.GetComponent<Frame> ()) {
 				triggerDownObject.target.GetComponent<Frame> ().ToggleSelection ();
+				Logger.LogSelection ("Additive", "Frame");
 			}
 			return;
 		}
+
+		Logger.LogSelection ("Additive", "No Target");
 	}
 
 	void SingleSelect(){
@@ -208,10 +235,12 @@ public class Pointer : MonoBehaviour {
 		if (HasTarget ()) {
 			if (currentTarget.target.GetComponent<LayerImage> ()) {
 				currentTarget.target.GetComponent<LayerImage> ().ToggleSelection ();
+				Logger.LogSelection ("Single", "LayerImage");
 			}
 
 			if (currentTarget.target.GetComponent<Frame> ()) {
 				currentTarget.target.GetComponent<Frame> ().Select ();
+				Logger.LogSelection ("Single", "Frame");
 			}
 
 			return;
@@ -220,13 +249,17 @@ public class Pointer : MonoBehaviour {
 		if (HasTriggerDownTarget ()) {
 			if (triggerDownObject.target.GetComponent<LayerImage> ()) {
 				triggerDownObject.target.GetComponent<LayerImage> ().ToggleSelection ();
+				Logger.LogSelection ("Single", "LayerImage");
 			}
 
 			if (triggerDownObject.target.GetComponent<Frame> ()) {
 				triggerDownObject.target.GetComponent<Frame> ().Select ();
+				Logger.LogSelection ("Single", "Frame");
 			}
 			return;
 		}
+
+		Logger.LogSelection ("Single", "No Target");
 	}
 
 	public bool MovingZ(){

@@ -23,7 +23,7 @@ public class Expand : MenuOption {
 	}
 
 	public override void SelectOption(){
-		layerManager.ExpandLayers ();
+		layerManager.ToggleRearrangementMode ();
 		Hide ();
 	}
 }

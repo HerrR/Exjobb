@@ -98,7 +98,7 @@ public class CompositeImage : MonoBehaviour {
 			);
 
 			newLayer.name = "Layer "+layersGenerated;
-			newLayer.GetComponentInChildren<Text> ().text = "Layer " + layersGenerated;
+			// newLayer.GetComponentInChildren<Text> ().text = "Layer " + layersGenerated;
 			newLayer.GetComponent<Layer> ().basePosition = spawnPosition;
 
 			Image imageCopy = Instantiate (

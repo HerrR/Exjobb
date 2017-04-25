@@ -45,8 +45,10 @@ public class LayerManager : MonoBehaviour {
 
 	public void ToggleRearrangementMode(){
 		if (!rearrangementMode) {
+			Logger.LogExpandCollapse ("Expand");
 			ExpandLayers();
 		} else {
+			Logger.LogExpandCollapse ("Collapse");
 			CollapseLayers();
 		}
 	}
@@ -96,7 +98,6 @@ public class LayerManager : MonoBehaviour {
 	void UpdatePointerHover(){
 		// If the pointer has no target -> Un-hover all layer images
 		if (!pointer.HasTarget ()) {
-			//foreach (Layer layer in layers) {
 			for(int i = 0 ; i < layers.Count ; i++){
 				Layer layer = layers [i];
 				if (layer.GetComponentInChildren<LayerImage> ().isHovered) {
@@ -138,7 +139,6 @@ public class LayerManager : MonoBehaviour {
 
 	void UpdateControllerHover(){
 		if(!controllerSelectionManager.HasTarget()){
-			//foreach (Layer layer in layers) {
 			for(int i = 0 ; i < layers.Count ; i++){
 				Layer layer = layers [i];
 				if (layer.GetComponentInChildren<LayerImage> ().isHovered) {
@@ -189,7 +189,6 @@ public class LayerManager : MonoBehaviour {
 	}
 
 	public void MoveSelectedLayersInZ(float _diffZ){
-		// foreach (Layer layer in layers) {
 		for(int i = 0 ; i < layers.Count ; i++){
 			Layer layer = layers [i];
 			if (layer.GetComponentInChildren<Frame> ().IsSelected ()) {
@@ -200,7 +199,6 @@ public class LayerManager : MonoBehaviour {
 
 	public bool HasSelectedFrames(){
 		bool found = false;
-		//foreach (Layer layer in layers) {
 		for(int i = 0 ; i < layers.Count ; i++){
 			Layer layer = layers [i];
 			if (layer.GetComponentInChildren<Frame> ().IsSelected ()) {
@@ -213,7 +211,6 @@ public class LayerManager : MonoBehaviour {
 
 	public bool HasSelectedImages(){
 		bool found = false;
-		// foreach (Layer layer in layers) {
 		for(int i = 0 ; i < layers.Count ; i++){
 			Layer layer = layers [i];
 			if (layer.GetComponentInChildren<LayerImage> ().isSelected) {
@@ -230,7 +227,6 @@ public class LayerManager : MonoBehaviour {
 	}
 
 	public void DeselectFrames(){
-		// foreach (Layer layer in layers) {
 		for(int i = 0 ; i < layers.Count ; i++){
 			Layer layer = layers [i];
 			layer.GetComponentInChildren<Frame> ().Deselect ();
@@ -238,7 +234,6 @@ public class LayerManager : MonoBehaviour {
 	}
 
 	public void DeselectImages(){
-		// foreach (Layer layer in layers) {
 		for(int i = 0 ; i < layers.Count ; i++){
 			Layer layer = layers [i];
 			layer.GetComponentInChildren<LayerImage> ().SetSelected (false);
@@ -246,7 +241,6 @@ public class LayerManager : MonoBehaviour {
 	}
 
 	public void UpdateStartingPositions(){
-		// foreach (Layer layer in layers) {
 		for(int i = 0 ; i < layers.Count ; i++){
 			Layer layer = layers [i];
 			layer.GetComponentInChildren<LayerImage> ().UpdateStartingPosition ();
@@ -255,12 +249,31 @@ public class LayerManager : MonoBehaviour {
 	}
 
 	public void MoveSelectedImagesInPlane(Vector2 movementVector){
-		// foreach (Layer layer in layers) {
 		for(int i = 0 ; i < layers.Count ; i++){
 			Layer layer = layers [i];
 			if (layer.GetComponentInChildren<LayerImage> ().isSelected) {
 				layer.GetComponentInChildren<LayerImage> ().MoveImageByVector (movementVector);
 			}
 		}
+	}
+
+	public int NumSelectedImages(){
+		int numSelected = 0;
+		for (int i = 0; i < layers.Count; i++) {
+			if (layers[i].GetComponentInChildren<LayerImage> ().isSelected) {
+				numSelected++;
+			}
+		}
+		return numSelected;
+	}
+
+	public int NumSelectedFrames(){
+		int numSelected = 0;
+		for (int i = 0; i < layers.Count; i++) {
+			if (layers [i].GetComponentInChildren<Frame> ().IsSelected ()) {
+				numSelected++;
+			}
+		}
+		return numSelected;
 	}
 }

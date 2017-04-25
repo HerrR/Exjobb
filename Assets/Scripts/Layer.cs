@@ -25,7 +25,7 @@ public class Layer : MonoBehaviour {
 	public bool atMinPosition = false;
 
 	public Image layerImage;
-	private Text layerText;
+	// private Text layerText;
 
 	public float movementSpeed = 5.0f;
 	public float layerSwtichMovementSpeed = 2.0f;
@@ -52,10 +52,8 @@ public class Layer : MonoBehaviour {
 	}
 
 	void Awake() {
-		// mainCanvas = GameObject.FindGameObjectWithTag ("MainCanvas");
 		generationZone = GameObject.FindGameObjectWithTag ("GenerationZone");
 		layerManager = GameObject.FindObjectOfType<LayerManager> ();
-		layerText = gameObject.GetComponentInChildren<Text> ();
 		frame = GetComponentInChildren<Frame> ();
 	}
 
@@ -158,15 +156,12 @@ public class Layer : MonoBehaviour {
 	void ShowHideWhenZMaxOrMin(){
 		if (gameObject.transform.position.z == zMax) {
 			layerImage.enabled = false;
-			HideLayerText ();
 			atMaxPosition = true;
 		} else if (gameObject.transform.position.z == zMin) {
 			layerImage.enabled = false;
-			HideLayerText ();
 			atMinPosition = true;
 		} else {
 			layerImage.enabled = true;
-			ShowLayerText ();
 			atMaxPosition = false;
 			atMinPosition = false;
 		}
@@ -212,18 +207,6 @@ public class Layer : MonoBehaviour {
 
 	public void ChangeBasePositionZ(float _z){
 		basePosition.z = _z;
-	}
-
-	public void UpdateLayerText(string _text){
-		layerText.text = _text;
-	}
-
-	public void ShowLayerText(){
-		layerText.enabled = true;
-	}
-
-	public void HideLayerText(){
-		layerText.enabled = false;
 	}
 
 	public void CallMoveFromTo(Transform _objectToMove, Vector3 _a, Vector3 _b, float _speed){

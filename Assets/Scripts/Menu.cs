@@ -64,9 +64,11 @@ public class Menu : MonoBehaviour {
 
 	public void ToggleMenu(){
 		if (menuActive) {
+			Logger.LogMenuInteraction ("Hide");
 			HideMenu ();
 		} else {
 			ShowMenu ();
+			Logger.LogMenuInteraction ("Show");
 		}
 	}
 
