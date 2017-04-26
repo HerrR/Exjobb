@@ -22,105 +22,57 @@ public class Logger : MonoBehaviour {
 	}
 
 	public static void LogKeypress(string _type){
-		// $Trigger Up/Trigger Down/Trigger Hold/... 	Timestamp
-		string[] msg = {
-			"$" + _type + "\t" + GenerateTimestamp ()
-		};
-		WriteToLog (msg);
+		WriteLineToLog("$"+_type);
 	}
 
 	public static void LogExpandCollapse(string _type){
-		// -Expand/Collapse	Timestamp
-		string[] msg = {
-			"-" + _type + "\t" + GenerateTimestamp ()
-		};
-		WriteToLog (msg);
+		WriteLineToLog("-"+_type);
 	}
 
 	public static void LogInteraction(string _interactionType, int _numTargets){
-		// #MoveZ/MoveXY	1/2/3/4/5/6/7	Pointer/Direct	TimeStamp
-		string[] msg = {
-			"#"+_interactionType+"\t"+_numTargets+"\t"+Settings.selectionMode+"\t"+GenerateTimestamp()
-		};
-
-		WriteToLog (msg);
+		WriteLineToLog("#"+_interactionType, "", _numTargets);
 	}
 
 	public static void LogMenuInteraction(string _optionName){
-		// @Expand/Collapse/Pointer/Direct	Timestamp
-		string[] msg = {
-			"@Menu "+_optionName+"\t"+GenerateTimestamp()
-		};
-		WriteToLog (msg);
+		WriteLineToLog("@Menu", _optionName);
 	}
 
 	public static void LogSelection(string _type, string _target){
-		// &Additive/Single		LayerImage/Frame/No Target		Pointer/Direct		Timestamp
-		string[] msg = {
-			"&"+_type+"\t"+_target+"\t"+Settings.selectionMode+"\t"+GenerateTimestamp()
-		};
-		WriteToLog (msg);
+		WriteLineToLog("&"+_type, _target);
 	}
 
 	public static void LogError(){
-		string[] msg = {
-			"!Error\t"+Settings.selectionMode+"\t"+GenerateTimestamp()	
-		};
-
-		WriteToLog (msg);
+		WriteLineToLog ("!Error");
 	}
 
 	public static void LogNewParticipant(){
-		string[] msg = {
-			"------------------------------------------------------",
-			"New Participant",
-			"Session started\t"+GenerateTimestamp(),
-			"Prototype Version\t2",
-			"Filename\t"+fileName,
-			"------------------------------------------------------"
-		};
-		WriteToLog(msg);
+		WriteLineToLog("Session Started", fileName);
 	}
 
 	public static void LogTaskStart(float startTime, string referenceImage ){
-		// Task Started 		Reference Image 		Timestamp
-		string[] msg = {
-			"Task Started\t"+referenceImage+"\t"+ startTime
-		};
-
-		WriteToLog (msg);
+		WriteLineToLog("Task Started",referenceImage, -1, startTime);
 	}
 
 	public static void LogTaskFinish(float timeToComplete, string referenceImage){
-		string[] msg = {
-			"Task Finished\t"+referenceImage+"\t"+ GenerateTimestamp() + "\t" + timeToComplete
-		};
-
-		WriteToLog (msg);
+		WriteLineToLog ("Task Finished", referenceImage, -1, timeToComplete);
 	}
 
 	public static void LogSessionComplete(){
-		string[] msg = {
-			"------------------------------------------------------",
-			"Session Finished\t"+GenerateTimestamp(),
-			"------------------------------------------------------"
-		};
-
-		WriteToLog (msg);
+		WriteLineToLog ("Session Finished");
 	}
 
-	public static void WriteToLog(string[] _inputLines){
+	public static void WriteLineToLog(string _action, string _targetType = "", int _numTargets = -1, float _time = 0){
 		if (fileName == default(string)) {
 			Debug.LogError ("No filename provided");
 			return;
 		}
-			
+
+		string stringToLog = _action+"\t"+_targetType+"\t"+_numTargets+"\t"+Settings.selectionMode+"\t"+GenerateTimestamp()+"\t"+_time;
+
 		using (FileStream aFile = new FileStream(fileName, FileMode.Append, FileAccess.Write))
 		using (StreamWriter sw = new StreamWriter(aFile)) {
-			foreach (string _line in _inputLines) {
-				Debug.Log (_line);
-				sw.WriteLine (_line);
-			}
+			Debug.Log (stringToLog);
+			sw.WriteLine (stringToLog);
 		}
 	}
 }
