@@ -62,6 +62,14 @@ public class Logger : MonoBehaviour {
 		WriteToLog (msg);
 	}
 
+	public static void LogError(){
+		string[] msg = {
+			"!Error\t"+Settings.selectionMode+"\t"+GenerateTimestamp()	
+		};
+
+		WriteToLog (msg);
+	}
+
 	public static void LogNewParticipant(){
 		string[] msg = {
 			"------------------------------------------------------",

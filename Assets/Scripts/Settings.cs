@@ -65,6 +65,10 @@ public class Settings : MonoBehaviour {
 			taskStartTime = default(float);
 		}
 
+		if (Input.GetKeyDown (KeyCode.E)) {
+			Logger.LogError ();
+		}
+
 		if (Input.GetKeyDown (KeyCode.X)) {
 			Logger.LogSessionComplete ();
 		}
